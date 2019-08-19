@@ -1,1 +1,8 @@
-<p>group works!</p>
+<div class="container">
+    <ul *ngFor="let group of groups">
+        <li>GROUP: {{group}}</li>
+        <ul *ngFor="let channel of channels">
+            <li *ngIf="channel.group == group">CHANNEL: {{channel.name}}</li>
+        </ul>
+    </ul>
+</div>

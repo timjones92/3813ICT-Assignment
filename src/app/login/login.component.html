@@ -1,1 +1,15 @@
-<p>login works!</p>
+<div class="container mt-2">
+    <form class="form-signin mt-2 border">
+    <h1 class="h3 mb-3 font-weight-normal text-center">Please sign in</h1>
+    <div class="form-group">
+        <label for="email">Username</label>
+        <input type="text" [(ngModel)]="username" name="username" class="form-control" id="email" aria-describedby="emailHelp" placeholder="Enter username">
+        <div *ngIf="username.invalid" class="alert alert-danger">
+            <div *ngIf="username.errors.required">
+                Username is required.
+            </div>
+        </div>
+    </div>
+    <button type="submit" (click)="getData()" class="btn btn-primary w-100">Submit</button>
+    </form>
+</div>
