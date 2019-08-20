@@ -1,8 +1,12 @@
-<div class="container">
-    <ul *ngFor="let group of groups">
+<div *ngIf="authenticated !== null" class="container group-bg p-2">
+    <h3 class="text-white">Hi {{username}}</h3>
+    <p class="text-white">Here are your current Groups and Channels.</p>
+    <ul *ngFor="let group of groups" class="text-white">
         <li>GROUP: {{group}}</li>
         <ul *ngFor="let channel of channels">
-            <li *ngIf="channel.group == group">CHANNEL: {{channel.name}}</li>
+            <li *ngIf="channel.group == group">
+                CHANNEL: <a [routerLink]="['/channels',channel.id]">{{channel.name}}</a>
+            </li>
         </ul>
     </ul>
 </div>

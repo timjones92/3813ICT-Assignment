@@ -7,7 +7,7 @@ import { ChannelComponent } from './channel/channel.component';
 const routes: Routes = [
   {path: '', component: LoginComponent},
   {path: '', outlet: 'group', component: GroupComponent},
-  {path: 'channel', component: ChannelComponent}
+  {path: 'channels/:id', component: ChannelComponent}
 ];
 
 @NgModule({

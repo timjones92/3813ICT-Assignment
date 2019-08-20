@@ -1,1 +1,24 @@
-<p>channel works!</p>
+<div class="container p-2 channel-body">
+    <h2 class="text-info">Talking in channel: 
+        <span class="text-success">{{channels.channelName}}</span>
+    </h2>
+    <br>
+    <h4 class="text-white">Chat Messages</h4>
+    <div class="card-body msg_body">
+        <div *ngFor="let message of messages; let i = index" [attr.data-index]="i" class="d-flex justify-content-end mb-4">
+            <div class="msg_container">
+                {{message}}
+                <span class="msg_time">{{datestamps[i] | date:'h:mm:ss a'}}</span>
+            </div>
+        </div>
+    </div>
+    <form>
+        <div class="form-group">
+            <label for="messagecontent" class="text-white">New Message</label>
+            <input type="text" [(ngModel)]="messagecontent" name="messagecontent" id="messagecontent" class="form-control" placeholder="Type your message...">
+        </div>
+        <div class="form-group">
+            <button (click)="chat(messagecontent)" class="btn btn-primary">Chat</button>
+        </div>
+    </form>
+</div>

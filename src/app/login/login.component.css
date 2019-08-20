@@ -1,0 +1,12 @@
+.login-bg {
+    background-color: rgba(0,0,0,0.7) !important;
+    max-width: 600px;
+    margin-top: 5em;
+    min-height: 300px;
+}
+
+.input-group-prepend span{
+    width: 50px;
+    color: black;
+    border:0 !important;
+    }

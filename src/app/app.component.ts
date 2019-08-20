@@ -8,17 +8,34 @@ import { Router } from '@angular/router';
 })
 export class AppComponent {
   title = 'ChatApp';
+  
+  authenticated: string;
+
+  // Check if current user function
+  readLocalStorageValue(key) {
+    return localStorage.getItem(key);
+  }
 
   constructor(private router: Router) {}
 
+  ngOnInit() {
+    this.authenticated = this.readLocalStorageValue('username');
+  }
+
   logout() {
-    alert("Are you sure you want to log out?");
-    localStorage.removeItem("username");
-    localStorage.removeItem("email");
-    localStorage.removeItem("role");
-    localStorage.removeItem("groups");
-    localStorage.removeItem("channels");
-    this.router.navigateByUrl('/');
-    location.reload();
+    if (confirm("Are you sure you want to log out?")) {
+      localStorage.removeItem("username");
+      localStorage.removeItem("email");
+      localStorage.removeItem("role");
+      localStorage.removeItem("groups");
+      localStorage.removeItem("channels");
+      
+      if (location.href === location.origin + '/') {
+        location.reload();
+      } else {
+        this.router.navigateByUrl('/');
+      }
+    }
+    
   }
 }
