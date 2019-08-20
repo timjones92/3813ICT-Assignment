@@ -9,13 +9,15 @@ import { GroupComponent } from './group/group.component';
 import { SocketService } from './services/socket.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AdminComponent } from './admin/admin.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
     ChannelComponent,
-    GroupComponent
+    GroupComponent,
+    AdminComponent
   ],
   imports: [
     BrowserModule,

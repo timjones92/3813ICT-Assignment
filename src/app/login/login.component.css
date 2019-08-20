@@ -1,7 +1,7 @@
 .login-bg {
-    background-color: rgba(0,0,0,0.7) !important;
+    background-color: rgba(0,0,0,0.8) !important;
     max-width: 600px;
-    margin-top: 5em;
+    margin-top: 20%;
     min-height: 300px;
 }
 

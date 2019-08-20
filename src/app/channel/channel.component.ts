@@ -3,6 +3,7 @@ import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 import { Channel } from '../groups';
 import { ChannelService } from '../services/channel.service';
 import { SocketService } from '../services/socket.service';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-channel',
@@ -25,7 +26,8 @@ export class ChannelComponent implements OnInit {
     private route: ActivatedRoute, 
     private router: Router,
     private channelService: ChannelService,
-    private socketService: SocketService
+    private socketService: SocketService,
+    private _location: Location
     ) { }
 
   ngOnInit() {
@@ -55,4 +57,7 @@ export class ChannelComponent implements OnInit {
     }
   }
 
+  private goBack() {
+    this._location.back();
+  }
 }

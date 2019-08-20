@@ -34,6 +34,10 @@ export class AppComponent {
         location.reload();
       } else {
         this.router.navigateByUrl('/');
+        setTimeout(()=>{
+          location.reload();
+        }, 100);
+        
       }
     }
     
