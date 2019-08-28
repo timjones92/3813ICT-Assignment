@@ -1,9 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { User } from '../users';
-import { Group, Channel } from '../groups';
 import { ChannelService } from '../services/channel.service';
-
+import { GroupsService } from '../services/groups.service';
 
 @Component({
   selector: 'app-login',
@@ -20,19 +18,18 @@ export class LoginComponent implements OnInit {
     return localStorage.getItem(key);
   }
 
-  // Initial Groups
-  group = [
-    new Group("B-Sharps"), 
-    new Group("AlphaOmega")
-  ];
-  
-
   // Initial Super User
   users = [
-    new User("Super", "superadmin@chatapp.com", "SuperAdmin", this.group, this.channelService.getChannels())
+    new User(
+      "Super", 
+      "superadmin@chatapp.com", 
+      "SuperAdmin", 
+      this.groupService.getGroups(), 
+      this.channelService.getChannels()
+      )
   ]
 
-  constructor(private router:Router, private channelService: ChannelService) { }
+  constructor(private channelService: ChannelService, private groupService: GroupsService) { }
   
   ngOnInit(){
     this.authenticated = this.readLocalStorageValue('username');
@@ -42,8 +39,6 @@ export class LoginComponent implements OnInit {
     var getUser = this.username;
     var groupList = []
     var channelList = []
-
-    this.channelService.getChannels
 
     if (this.users.some(person => (person.username == getUser))) {
       var currentUser = this.users.find(u => u.username == this.username)

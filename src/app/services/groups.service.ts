@@ -1,12 +1,18 @@
 import { Injectable } from '@angular/core';
 import { Group } from '../groups';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+
 
 @Injectable({
   providedIn: 'root'
 })
+
+
 export class GroupsService {
 
-  constructor() { }
+  url = "http://localhost:4200/"
+
+  constructor(private http: HttpClient) { }
 
   getGroups() {
     let groups: Group[];
@@ -18,5 +24,9 @@ export class GroupsService {
     ];
 
     return groups;
+
   }
+
+  
+
 }

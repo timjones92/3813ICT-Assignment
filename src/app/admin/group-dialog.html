@@ -1,0 +1,9 @@
+<div mat-dialog-content class="h-100">
+    <mat-form-field>
+        <input matInput [(ngModel)]="data.groupName" placeholder="Type new group name in.">
+    </mat-form-field>
+    <div mat-dialog-actions>
+        <button mat-button class="btn btn-danger" (click)="onCancelClick()">Cancel</button>
+        <button mat-button [mat-dialog-close]="data.groupName" class="btn btn-success" cdkFocusInitial>Done</button>
+    </div>
+</div>

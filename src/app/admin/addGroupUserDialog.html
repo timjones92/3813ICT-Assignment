@@ -1,0 +1,16 @@
+<div mat-dialog-content class="h-100 mx-auto">
+    <h2>Add user to {{data.groupName}}</h2>
+    <mat-form-field>
+        <mat-label>Select a user</mat-label>
+        <mat-select [(ngModel)]="selectedUser" name="user">
+            <mat-option 
+            *ngFor="let user of data.users" 
+            [value]="user.username">{{user.username}}</mat-option>
+        </mat-select>
+    </mat-form-field>
+    
+    <div mat-dialog-actions>
+        <button mat-button class="btn btn-danger" (click)="onCancelClick()">Cancel</button>
+        <button mat-button [mat-dialog-close]="selectedUser" class="btn btn-success" cdkFocusInitial>Done</button>
+    </div>
+</div>

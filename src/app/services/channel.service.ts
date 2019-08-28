@@ -13,9 +13,9 @@ export class ChannelService {
     let channel: Channel[];
 
     channel = [
-      new Channel("B-Sharps", 0, "Homer"),
-      new Channel("B-Sharps", 1, "Skinner"),
-      new Channel("AlphaOmega", 2, "Squadron")
+      new Channel("B-Sharps", "Homer"),
+      new Channel("B-Sharps", "Skinner"),
+      new Channel("AlphaOmega", "Squadron")
     ]
     
     return channel;
