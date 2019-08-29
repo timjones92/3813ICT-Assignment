@@ -85,7 +85,7 @@ module.exports = function(app, fs) {
                     if (err) {
                         console.log(err);
                     } else {
-                        console.log("Deleted " + selectedGroup + " from groups file.");
+                        console.log("Deleted", selectedGroup, " from groups file.");
                     }
                 });
             }
@@ -94,7 +94,8 @@ module.exports = function(app, fs) {
 
     app.post("/api/addUserToGroup", function(req, res) {
         res.send(req.body);
-        var groupToAdd = req.body.group;
+        var groupNameToAdd = req.body.groupName;
+        var groupIDToAdd = req.body.groupID;
         var user = req.body.user;
         fs.readFile('users.txt', 'utf8', function(err, data) {
             if (err) {
@@ -107,13 +108,13 @@ module.exports = function(app, fs) {
                 if (updatedUser.groups === undefined) {
                     updatedUser.groups = []
                 }
-                updatedUser.groups.push({"groupName": groupToAdd});
+                updatedUser.groups.push({"groupID": groupIDToAdd,"groupName": groupNameToAdd});
                 jsonToFile = JSON.stringify(userList);
                 fs.writeFile('users.txt', jsonToFile, function(err) {
                     if (err) {
                         console.log(err);
                     } else {
-                        console.log("Added", user, "to group", groupToAdd);
+                        console.log("Added", user, "to group", groupNameToAdd);
                     }
                 });
             }

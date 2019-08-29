@@ -12,11 +12,6 @@ export class ChannelService {
     //Initial Channels
     let channel: Channel[];
 
-    channel = [
-      new Channel("B-Sharps", "Homer"),
-      new Channel("B-Sharps", "Skinner"),
-      new Channel("AlphaOmega", "Squadron")
-    ]
     
     return channel;
   }

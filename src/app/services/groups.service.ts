@@ -17,11 +17,7 @@ export class GroupsService {
   getGroups() {
     let groups: Group[];
 
-    // Initial Groups
-    groups = [
-      new Group("B-Sharps"), 
-      new Group("AlphaOmega")
-    ];
+    
 
     return groups;
 

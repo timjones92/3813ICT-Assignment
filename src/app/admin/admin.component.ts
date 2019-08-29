@@ -80,7 +80,7 @@ export class AdminComponent implements OnInit {
   ********************************
   */
   addNewGroup() {
-    let newGroup = new Group("");
+    let newGroup = new Group(0,"");
     
     const dialogRef = this.dialog.open(GroupDialog, {
       height: '400px',
@@ -89,7 +89,10 @@ export class AdminComponent implements OnInit {
     });
     
     dialogRef.afterClosed().subscribe(result => {
-      newGroup.groupName = result
+      newGroup.groupID = this.groups.length;
+      newGroup.groupName = result;
+      
+      //console.log(newGroup)
       if (result !== undefined) {
         this.http.post(this.saveUrl, JSON.stringify(newGroup), this.httpOptions).subscribe(    
           data => {
@@ -128,12 +131,14 @@ export class AdminComponent implements OnInit {
   deleteGroup(group) {
     let index = this.groups.indexOf(group);
     console.log(index);
-    this.http.post(this.deleteGroupURL, this.groups[index], this.httpOptions).subscribe(
-      data => {
-        console.log(data);
-        location.reload();
-      }
-    );
+    if (confirm("Are you sure you want to delete the " + group.groupName + " group?")) {
+      this.http.post(this.deleteGroupURL, this.groups[index], this.httpOptions).subscribe(
+        data => {
+          console.log(data);
+          location.reload();
+        }
+      );
+    }
   }
 
   /**
@@ -214,14 +219,20 @@ export class AdminComponent implements OnInit {
     addGroupUserDialogRef.afterClosed().subscribe(result => {
       console.log(result);
       let index = this.groups.indexOf(group);
-      this.http.post(this.addUserToGroupURL, {group: this.groups[index].groupName, user: result}, this.httpOptions).subscribe(
-        data => {
-          console.log(data)
-          location.reload();
-        }
-      );
+      if (result !== undefined) {
+        this.http.post(this.addUserToGroupURL, {groupID: this.groups[index].groupID, groupName: this.groups[index].groupName, user: result}, this.httpOptions).subscribe(
+          data => {
+            console.log(data)
+            location.reload();
+          }
+        );
+      }
     });
   }
+  deleteUserFromGroup(user, group) {
+    console.log(user)
+  }
+
 }
 
 // Groups Dialog class

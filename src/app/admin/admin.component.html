@@ -62,7 +62,7 @@
                     <select class="form-control">
                         <ng-container *ngFor="let user of users">
                             <ng-container *ngFor="let gp of user.groups">
-                                <option *ngIf="group.groupName === gp.groupName">{{user.username}}</option>
+                                <option *ngIf="group.groupName === gp.groupName" [value]="user.username">{{user.username}}</option>
                             </ng-container>
                             
                         </ng-container>
@@ -70,7 +70,7 @@
                     </select>
                 </div>
                 <div class="col-md-1">
-                    <button type="button" class="btn btn-danger mr-1"><i class="fas fa-times"></i></button>
+                    <button type="button" class="btn btn-danger mr-1" (click)="deleteUserFromGroup(user, group)"><i class="fas fa-times"></i></button>
                     <button type="button" class="btn btn-success" (click)="addUserToGroup(group)"><i class="fas fa-plus"></i></button>
                 </div>
             </div>

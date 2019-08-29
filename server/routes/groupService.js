@@ -58,21 +58,43 @@ module.exports = function(app, fs) {
     // Get update values and overwrite file with updated values
     app.post("/api/updateGroup", function(req, res) {
         res.send(req.body);
+        var userList = { users: [] };
         groupList.groups = req.body;
         jsonUpdated = JSON.stringify(groupList);
         fs.writeFile('db.txt', jsonUpdated, function(err) {
             if (err) {
                 console.log(err);
             } else {
-                console.log("Updated file with new values.");
-            }
-        });
-        fs.readFile('users.txt', 'utf8', function(err, data) {
-            if (err) {
-                res.send(err);
-            } else {
-                res.send(data);
-                console.log("User data:" + data)
+                console.log("Updated file with new values:", req.body);
+                fs.readFile('users.txt', 'utf8', function(err, data) {
+                    if (err) {
+                        res.send(err);
+                    } else {
+                        // res.send(data);
+                        //console.log("User data:", data)
+                        var users = JSON.parse(data);
+                        for (let i = 0; i < users.users.length; i++) {
+                            let getUsers = users.users[i];
+                            if (getUsers.groups !== undefined) {
+                                for (let g = 0; g < getUsers.groups.length; g++) {
+                                    var updatedUsers = req.body.find(key => key.groupID === getUsers.groups[g].groupID)
+                                    getUsers.groups[g] = updatedUsers
+                                }
+                                userList.users.push(getUsers)
+                            } else {
+                                userList.users.push(getUsers)
+                            }
+                        }
+                        var updateUserGroups = JSON.stringify(userList);
+                        fs.writeFile('users.txt', updateUserGroups, function(err) {
+                            if (err) {
+                                console.log(err);
+                            } else {
+                                console.log("Updated user groups.");
+                            }
+                        });
+                    }
+                });
             }
         });
     });
@@ -80,6 +102,7 @@ module.exports = function(app, fs) {
     // Get object to delete and delete it from Groups file
     app.post("/api/deleteGroup", function (req, res) {
         res.send(req.body);
+        var userList = { users: [] };
         fs.readFile('db.txt', 'utf8', function (err, data) {
             if (err) {
                 res.send(err);
@@ -89,11 +112,43 @@ module.exports = function(app, fs) {
                 indexToDelete = groupList.groups.findIndex(x => x.groupName === selectedGroup.groupName);
                 groupList.groups.splice(indexToDelete, 1);
                 json = JSON.stringify(groupList);
+                fs.readFile('users.txt', 'utf8', function(err, data) {
+                    if (err) {
+                        res.send(err);
+                    } else {
+                        // res.send(data);
+                        //console.log("User data:", data)
+                        var users = JSON.parse(data);
+                        for (let i = 0; i < users.users.length; i++) {
+                            let getUsers = users.users[i];
+                            if (getUsers.groups !== undefined) {
+                                for (let g = 0; g < getUsers.groups.length; g++) {
+                                    if (getUsers.groups[g].groupID === selectedGroup.groupID) {
+                                        groupIndexToDelete = getUsers.groups.findIndex(idx => idx.groupID === selectedGroup.groupID)
+                                        getUsers.groups.splice(groupIndexToDelete, 1)
+                                    }
+                                }
+                                userList.users.push(getUsers)
+                            } else {
+                                userList.users.push(getUsers)
+                            }
+                        }
+                        var updateUserGroups = JSON.stringify(userList);
+                        fs.writeFile('users.txt', updateUserGroups, function(err) {
+                            if (err) {
+                                console.log(err);
+                            } else {
+                                console.log("Updated user groups.");
+                            }
+                        });
+                    }
+                });
                 fs.writeFile('db.txt', json, function(err) {
                     if (err) {
                         console.log(err);
                     } else {
-                        console.log("Deleted " + selectedGroup + " from groups file.");
+                        console.log("Deleted " + selectedGroup.groupName + " from groups file.");
+                        
                     }
                 });
             }
