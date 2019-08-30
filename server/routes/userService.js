@@ -49,6 +49,16 @@ module.exports = function(app, fs) {
             if (err) {
                 res.send(err);
             } else {
+                if (data.length === 0) {
+                    startUserList = JSON.stringify(userList)
+                    fs.writeFile('users.txt', startUserList, 'utf8', function (err, data) {
+                        if (err) {
+                            res.send(err);
+                        } else {
+                            console.log("Started new list of users.")
+                        }
+                    });
+                }
                 res.send(data);
                 //console.log('Passing back all users: ' + data);
             }
@@ -91,7 +101,8 @@ module.exports = function(app, fs) {
             }
         });
     });
-
+    
+    // Add a new user to an existing group
     app.post("/api/addUserToGroup", function(req, res) {
         res.send(req.body);
         var groupNameToAdd = req.body.groupName;
@@ -115,6 +126,39 @@ module.exports = function(app, fs) {
                         console.log(err);
                     } else {
                         console.log("Added", user, "to group", groupNameToAdd);
+                    }
+                });
+            }
+        })
+    });
+
+    // Delete an existing user from a group
+    app.post("/api/deleteUserFromGroup", function(req, res) {
+        res.send(req.body);
+        var groupNameToDelete = req.body.groupName;
+        var groupIDToDelete = req.body.groupID;
+        var user = req.body.user;
+        fs.readFile('users.txt', 'utf8', function(err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                userList = JSON.parse(data);
+                var indexOfUser = userList.users.findIndex(u => u.username === user);
+                var currentUser = userList.users[indexOfUser]
+                //console.log(currentUser)
+                for (let i = 0; i < currentUser.groups.length; i ++) {
+                    if (currentUser.groups[i].groupID === groupIDToDelete) {
+                        currentUserGroupIndex = currentUser.groups.findIndex(g => g.groupID === groupIDToDelete);
+                        currentUser.groups.splice(currentUserGroupIndex, 1);
+                    }
+                }
+                console.log(currentUser)
+                jsonToFile = JSON.stringify(userList);
+                fs.writeFile('users.txt', jsonToFile, function(err) {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        console.log("Deleted", groupNameToDelete, "from user:", user);
                     }
                 });
             }

@@ -10,8 +10,9 @@ export class Group {
 export class Channel extends Group {
     channelID: number;
     channelName: string;
-    constructor(groupID: number, groupName:string, channelName:string) {
+    constructor(groupID: number, groupName:string, channelID:number, channelName:string) {
         super(groupID, groupName);
+        this.channelID = channelID;
         this.channelName = channelName;
     }
 }

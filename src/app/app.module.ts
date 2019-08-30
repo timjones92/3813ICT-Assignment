@@ -14,13 +14,21 @@ import { MatDialogModule, MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material/d
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTabsModule } from '@angular/material/tabs';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { GroupDialog, UserDialog, AddGroupUserDialog } from './admin/admin.component';
+import { 
+  GroupDialog, 
+  UserDialog, 
+  AddGroupUserDialog, 
+  DeleteUserFromGroupDialog,
+  AddChannelDialog,
+  AddChannelUserDialog,
+  DeleteUserFromChannelDialog } from './admin/admin.component';
 import { HttpClientModule } from '@angular/common/http';
 
 
 @NgModule({
-  entryComponents: [GroupDialog, UserDialog, AddGroupUserDialog],
+  entryComponents: [GroupDialog, UserDialog, AddGroupUserDialog, DeleteUserFromGroupDialog, AddChannelDialog, AddChannelUserDialog, DeleteUserFromChannelDialog],
   declarations: [
     AppComponent,
     LoginComponent,
@@ -29,7 +37,11 @@ import { HttpClientModule } from '@angular/common/http';
     AdminComponent,
     GroupDialog,
     UserDialog,
-    AddGroupUserDialog
+    AddGroupUserDialog,
+    DeleteUserFromGroupDialog,
+    AddChannelDialog,
+    AddChannelUserDialog,
+    DeleteUserFromChannelDialog
   ],
   imports: [
     BrowserModule,
@@ -41,7 +53,8 @@ import { HttpClientModule } from '@angular/common/http';
     MatFormFieldModule,
     MatInputModule,
     HttpClientModule,
-    MatSelectModule
+    MatSelectModule,
+    MatTabsModule
   ],
   providers: [SocketService, {provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: {hasBackdrop: false}}], 
   bootstrap: [AppComponent]
