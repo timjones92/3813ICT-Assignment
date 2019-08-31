@@ -134,8 +134,8 @@ module.exports = function(app, fs) {
                             let getUsers = users.users[i];
                             if (getUsers.channels !== undefined) {
                                 for (let g = 0; g < getUsers.channels.length; g++) {
-                                    if (getUsers.channels[g].channelID === selectedGroup.channelID) {
-                                        channelIndexToDelete = getUsers.channels.findIndex(idx => idx.channelID === selectedGroup.channelID)
+                                    if (getUsers.channels[g].channelID === selectedChannel.channelID) {
+                                        channelIndexToDelete = getUsers.channels.findIndex(idx => idx.channelID === selectedChannel.channelID)
                                         getUsers.channels.splice(channelIndexToDelete, 1)
                                     }
                                 }

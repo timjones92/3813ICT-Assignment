@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-group',
@@ -7,39 +8,40 @@ import { Component, OnInit } from '@angular/core';
 })
 export class GroupComponent implements OnInit {
 
-  username = "";
-  allGroups = "";
-  groups:string[] = [];
-  allChannels = "";
-  channels:string[] = [];
-
+  localUsername = "";
+  users = [];
+  currentUser = {};
   authenticated: string;
 
+  url = "http://localhost:3000/api/getAllUsers/";
+  
   // Check if current user function
   readLocalStorageValue(key) {
     return localStorage.getItem(key);
   }
 
-  constructor() { }
+  constructor(private http: HttpClient) { }
 
   ngOnInit() {
     this.authenticated = this.readLocalStorageValue('username');
 
     if (typeof(Storage) !== "undefined"){
-      this.username = localStorage.getItem("username");
-      this.allGroups = JSON.parse(localStorage.getItem("groups"));
-      this.allChannels = JSON.parse(localStorage.getItem("channels"));
-
-      // Push all groups to groups list
-      for (let i = 0; i < this.allGroups.length; i++) {
-        this.groups.push(this.allGroups[i]);
-      }
-      
-      // Push all channels to channels list
-      for (let i = 0; i < this.allChannels.length; i++) {
-        this.channels.push(this.allChannels[i]);
-      }
+      this.localUsername = localStorage.getItem("username");
     }
+    
+    // Get all users on init load of page
+    this.http.get(this.url).subscribe(data => {
+      if (data !== null) {
+        this.users = data['users'];
+        // Get current user from all users and add to variable `currentUser`
+        for (let i = 0; i < this.users.length; i++) {
+          if (this.users[i].username === this.localUsername) {
+            this.currentUser = this.users[i]
+          }
+        }
+        console.log("Current User:", this.currentUser);
+      }
+    });
   }
 
 }

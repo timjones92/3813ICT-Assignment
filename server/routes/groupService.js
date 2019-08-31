@@ -197,23 +197,28 @@ module.exports = function(app, fs) {
                                                 if (eachChannel.groupID === selectedGroup.groupID) {
                                                     let deleteIndex = existingChannels.channels.indexOf(eachChannel)
                                                     existingChannels.channels.splice(deleteIndex, 1);
-                                                    channelList.channels.push(eachChannel);
+                                                }
+                                                if (existingChannels.channels[i] !== undefined) {
+                                                    channelList.channels.push(existingChannels.channels[i]);
                                                 }
                                             }
-                                            
                                         }
                                         
                                         let jsonUpdatedChannels = JSON.stringify(channelList);
-                                        console.log(jsonUpdatedChannels)
                                         for (let i = 0; i < users.users.length; i++) {
                                             let use = userList.users[i];
                                             if (use.channels !== undefined) {
-                                                for (let cha = 0; cha < use.channels.length; cha++) {
-                                                    let idx = use.channels.findIndex(i => i.groupID === selectedGroup.groupID);
-                                                    use.channels.splice(idx, 1);
+                                                let ind = use.channels.length;
+                                                console.log("count of channels in group", ind)
+                                                while (ind--) {
+                                                    console.log(use.channels[ind])
+                                                    if (use.channels[ind].groupID === selectedGroup.groupID) {
+                                                        userList.users[i].channels.splice(use.channels.indexOf(use.channels[ind]), 1)
+                                                    }
                                                 }
                                             }
                                         }
+
                                         var updateUserGroups = JSON.stringify(userList);
                                         fs.writeFile('users.txt', updateUserGroups, function(err) {
                                             if (err) {

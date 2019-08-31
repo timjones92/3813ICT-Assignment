@@ -90,6 +90,7 @@ export class AdminComponent implements OnInit {
         this.channels = data['channels'];
       }
     });
+    
   }
 
   /**
@@ -360,6 +361,7 @@ export class AdminComponent implements OnInit {
   }
 
   addUserToChannel(channel) {
+    
     const addChannelUserDialogRef = this.dialog.open(AddChannelUserDialog, {
       height: '400px',
       width: '600px',
