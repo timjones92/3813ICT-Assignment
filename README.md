@@ -1,31 +1,3 @@
-# ChatApp
-
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 8.1.3.
-
-## Development server
-
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
-
-## Code scaffolding
-
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
-
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
-
 # 3813ICT-Assignment
 
 **Author:** Tim Jones
@@ -82,6 +54,55 @@ JSON objects
 * parse strings to get from file
 * stringify object to pass data to file
 
+**Arrays**
+* users
+* groups
+* channels
+
+**Node FS**
+* file system use to read or write data to files
+
+
+## Client/Server Interaction
+
+Each different key element (user, group, channel) has its own route where data is received/distributed. Each element starts with a variable which holds all data pertaining to the related element. The variable is an object which the key of the principle variable equals an array of each element. 
+
+For example, the global var for users is `var userList = { users: [] }`. As a new user is entered, the new user is pushed into the array, the array is serialized using JSON.stringify, and then written to the text file holding users. When a user is to be updated, the POST request gets all users data from the client side. The data is pushed to the userList which is now holding the current data in the user form fields. The userList containing updated data is then serialized to a string to be written back into the user’s text file. Now the next time all users are called to be displayed, the file will contain the latest updated data for the client side to see. For a user to be deleted, a similar process occurs however the userList is now holding the current users text file data. An index splice is used on the index of the userList, where the index is requested user from the client side is currently placed in the userList. 
+
+These same principles apply for groups and channels also. However, due to there being 3 separate text files, when a group or channel is updated or deleted, the users text file is read, stored to a new array of users, and the group or channel within the user is updated or deleted to ensure consistency across the file system.
+On the client side, a similar process occurs. An empty list for each element is used to pass incoming data through, and loop through to display on the web page.
+
+## Client/Server Responsibilities
+
+Three separate files were used that utilised RESTfull API to pass data from the server to the client. The files separate the users, groups and channels data handling. When the client side requests data, the server passes the text in the file to a JSON object. It then serves the GET request from the client and sends the JSON object/s to the client. When a user/group/channel is to be added, updated or deleted, the client sends a POST request through the HTTPClient module to the specified URL route that connects the corresponding server-side route. The REST API sends back data to the client.
+
+## Angular Architecture
+### Components
+* `LoginComponent` - displays only if user is not logged in. Form field with ngModel username, to get the value of the username entered. Checks if username entered is a username in the users file system.
+* `GroupComponent` - displays only if user is logged in. Shows the currently logged in user the groups and channels they are currently in.
+* `AdminComponent` - displays only if user is logged in and current user's role is not 'User'. This is the route that displays forms to add/edit/delete Users, Groups and Channels depending on role of current user. Displays each of these in tabs.
+* `ChannelComponent` routes to the path `channels/:id` where the id is the `channelID` of the channel selected. This route uses sockets to display chat messages for any observer.
+
+### Services
+* `SocketService` - gets the socket from server, emits a message socket is called, allows observers to also view message.
+
+### Models
+* `Users` - defines the data structure for a User.
+* `Groups` - defines the data structure for a Group and a Channel (Channel extends the Group Class).
+
+### Dialogs
+* Add User Dialog - form field with username, email and role for new user.
+* Add Group Dialog - form field with group name for new group.
+* Add Channel Dialog - form field with group name and channel name for new channel.
+* Add User to Group Dialog - form field with user name to select to add to group, and group name to add user to.
+* Add User to Channel Dialog - form field with user name to select to add to channel, and channel name to add user to.
+* Delete User from Group Dialog - form field with user name to select to delete from group, and group name to delete user from.
+* Delete User from Channel Dialog - form field with user name to select to delete from channel, and channel name to delete user from.
+
+### Tabs
+* Used `mat-tab-group` to make 3 tabs to hold structure for users, groups and channels administration forms.
+
+## REST API Archtiecture
 **Routes**
 
 *Users*
@@ -109,33 +130,53 @@ JSON objects
 * Method: `POST` Route: `/api/addUserToChannel` - get a POST request from client where client is sending the `groupID`, `groupName`, `channelID` and `channelName` of the channel to add the user to, plus the user's username. The route then finds the user object from `userList` where user object username = received username, then pushes the received channel to the received user.
 * Method: `POST` Route: `/api/deleteUserFromChannel` - get a POST request from client where client is sending the `groupID`, `groupName`, `channelID` and `channelName` of the channel to delete the user from, and also the user's username to delete. The route then finds the user object from `userList` where user object username = received username, splices the received channel from the received user, and writes back to `channels.txt` with updated data.
 
-**Arrays**
-* users
-* groups
-* channels
-
-Node FS
-* file system use to read or write data to files
-
-
-## Client/Server Interaction
-
-Each different key element (user, group, channel) has its own route where data is received/distributed. Each element starts with a variable which holds all data pertaining to the related element. The variable is an object which the key of the principle variable equals an array of each element. 
-
-For example, the global var for users is `var userList = { users: [] }`. As a new user is entered, the new user is pushed into the array, the array is serialized using JSON.stringify, and then written to the text file holding users. When a user is to be updated, the POST request gets all users data from the client side. The data is pushed to the userList which is now holding the current data in the user form fields. The userList containing updated data is then serialized to a string to be written back into the user’s text file. Now the next time all users are called to be displayed, the file will contain the latest updated data for the client side to see. For a user to be deleted, a similar process occurs however the userList is now holding the current users text file data. An index splice is used on the index of the userList, where the index is requested user from the client side is currently placed in the userList. 
-
-These same principles apply for groups and channels also. However, due to there being 3 separate text files, when a group or channel is updated or deleted, the users text file is read, stored to a new array of users, and the group or channel within the user is updated or deleted to ensure consistency across the file system.
-On the client side, a similar process occurs. An empty list for each element is used to pass incoming data through, and loop through to display on the web page.
-
-## Client/Server Responsibilities
-
-Three separate files were used that utilised RESTfull API to pass data from the server to the client. The files separate the users, groups and channels data handling. When the client side requests data, the server passes the text in the file to a JSON object. It then serves the GET request from the client and sends the JSON object/s to the client. When a user/group/channel is to be added, updated or deleted, the client sends a POST request through the HTTPClient module to the specified URL route that connects the corresponding server-side route. The REST API sends back data to the client.
-
-## Angular Architecture
-
-
-## Node Server Archtiecture
-
-
 ## GIT
+
+### Layout
+The layout of the Git repository is in the same directory hierarchy as it is in Virtual Studio Code. The client side Angular components, services, models and anything else that has a major effect on the view is in the `src/app/` directory the repository. Each component and service has its own folder. 
+
+The server side files are all separated into a `server/` directory location to keep it separated from the client side files. Most notably, to separate the server side `package.json` from the Angular `package.json` file. Routes for the server are in their own folder. The `server.js` file requires in these routes.
+
+### Approach
+Because this is the first iteration of the project, as well as being an individual project, no branch was required at this stage. For Assigment 2, a branch will be utilised to fork the current project state and build off of, and then merged back into the master when completed.
+
+Each commit and push to git repository was carried out at a planned checkpoint where the work was in it's next phase. The phases included -
+* Setup of Angular 
+* Setup of Node JS
+* Implementation of initial components, routes
+* Implementation of initial server, routes, sockets
+* Completion of login
+* Completion of groups
+* Completion of channels
+* Completion of administration
+* Completion of server side REST API's and sockets
+* Other major milestones
+
+# ChatApp
+
+This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 8.1.3.
+
+## Development server
+
+Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+
+## Code scaffolding
+
+Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+
+## Build
+
+Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+
+## Running unit tests
+
+Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+
+## Running end-to-end tests
+
+Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+
+## Further help
+
+To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
 
