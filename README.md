@@ -58,8 +58,13 @@ Current User object
 * with User class attributes
 
 **Routes**
-* `LoginComponent` route which sits at the root path, displays only if user is logged in
-* `GroupComponent` route 
+* `LoginComponent` route path at root of site, displays only if user is not logged in.
+* `GroupComponent` route path at root of site, with outlet, displays only if user is logged in. This is the route that shows the currently logged in user the groups and channels they are currently in.
+* `AdminComponent` route path at root of site, with outlet, displays only if user is logged in. This is the route that displays forms to add/edit/delete Users, Groups and Channels depending on role of current user.
+* `ChannelComponent` routes to the path `channels/:id` where the id is the `channelID` of the channel selected. This route uses sockets to display chat messages for any observer.
+
+**HTTPClient**
+* `GET` and `POST` HTTPClient calls to call to server routes
 
 **Arrays**
 * users
@@ -67,19 +72,47 @@ Current User object
 * channels
 
 **Strings** 
-* variable for authenticated
-* to see if there is a user currently signed in or not. 
-* for REST API's
+* variable for authenticated - to see if there is a user currently signed in or not. 
+* URLs for REST API's (see server-side routes)
 
 ### Server-side
-Arrays for 
-* users
-* groups
-* channels
+**Objects**
 
 JSON objects
 * parse strings to get from file
 * stringify object to pass data to file
+
+**Routes**
+
+*Users*
+* Method: `GET` Route: `/api/getAllUsers` - get all users from users text file (`users.txt`) and return data to client.
+* Method: `POST` Route: `/api/saveUser` - gets a POST request from client where client is sending the username, email and role of new user from new user form field. Reads all existing users from `users.txt`, push to `userList` array, push new user to `userList` array, then write back over `users.txt` the updated `userList` array.
+* Method: `GET` Route: `/api/getUser` - returns the new user from server-side to the client.
+* Method: `POST` Route: `/api/updateUser` - gets a POST request from client where client is sending all users in the current form field. The current data for all users is then written to file to overwrite the existing users in `users.txt`.
+* Method: `POST` Route: `/api/deleteUser` - gets a POST request from client where the client is sending the user object of the selected user to be deleted. The existing users in `users.txt` is pushed to `userList`, and the index of the received user to be deleted is found. The user is spliced by received user index position, and then updated `userList` is written back to `users.txt`.
+* Method: `POST` Route: `/api/addUserToGroup` - get a POST request from client where client is sending the `groupID` and `groupName` of the group to add the user to, plus the users username. The route then finds the user object from `userList` where user object username = received username, then pushes the received group to the received user.
+* Method: `POST` Route: `/api/deleteUserFromGroup` - get a POST request from client where client is sending the `groupID` and `groupName` of the group to delete the user from, and also the user's username to delete. The route then finds the user object from `userList` where user object username = received username, splices the received group from the received user, and writes back to `users.txt` with updated data.
+
+*Groups*
+* Method: `GET` Route: `/api/getAllGroups` - get all groups from groups text file (`groups.txt`) and return data to client.
+* Method: `POST` Route: `/api/saveGroup` - gets a POST request from client where client is sending the group id and group name of new group from new group form field. Reads all existing groups from `groups.txt`, push to `groupList` array, push new group to `groupList` array, then write back over `groups.txt` the updated `groupList` array.
+* Method: `GET` Route: `/api/getGroup` - returns the new group from server-side to client-side once new group is written in `groups.txt`.
+* Method: `POST` Route: `/api/updateGroup` - gets a POST request from client where client is sending all groups in the current form field. The current data for all groups is then written to file to overwrite the existing groups in `groups.txt`.
+* Method: `POST` Route: `/api/deleteGroup` - gets a POST request from client where the client is sending the group object of the selected group to be deleted. The existing groups in `groups.txt`, and the index of the received group to be deleted is found. The group is spliced by received group index position, and then updated `groupList` is written back to `groups.txt`.
+
+*Channels*
+* Method: `GET` Route: `/api/getAllChannels` - get all channels from channels text file (`channels.txt`) and return data to client.
+* Method: `POST` Route: `/api/saveChannel` - gets a POST request from client where client is sending the group id, group name, channel id and channel name of new channel from new channel form field. Reads all existing channels from `channels.txt`, push to `channelList` array, push new channel to `channelList` array, then write back over `channels.txt` the updated `channelList` array.
+* Method: `GET` Route: `/api/getChannel` - returns the new channel from server-side to the client.
+* Method: `POST` Route: `/api/updateChannels` - gets a POST request from client where client is sending all channels in the current form field. The current data for all channels is then written to file to overwrite the existing channels in `users.txt`.
+* Method: `POST` Route: `/api/deleteChannel` - gets a POST request from client where the client is sending the channel object of the selected channel to be deleted. The existing channels in `channels.txt` is pushed to `channelList`, and the index of the received channel to be deleted is found. The channel is spliced by received channel index position, and then updated `channelList` is written back to `channels.txt`.
+* Method: `POST` Route: `/api/addUserToChannel` - get a POST request from client where client is sending the `groupID`, `groupName`, `channelID` and `channelName` of the channel to add the user to, plus the user's username. The route then finds the user object from `userList` where user object username = received username, then pushes the received channel to the received user.
+* Method: `POST` Route: `/api/deleteUserFromChannel` - get a POST request from client where client is sending the `groupID`, `groupName`, `channelID` and `channelName` of the channel to delete the user from, and also the user's username to delete. The route then finds the user object from `userList` where user object username = received username, splices the received channel from the received user, and writes back to `channels.txt` with updated data.
+
+**Arrays**
+* users
+* groups
+* channels
 
 Node FS
 * file system use to read or write data to files
