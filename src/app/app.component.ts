@@ -25,10 +25,6 @@ export class AppComponent {
   logout() {
     if (confirm("Are you sure you want to log out?")) {
       localStorage.removeItem("username");
-      localStorage.removeItem("email");
-      localStorage.removeItem("role");
-      localStorage.removeItem("groups");
-      localStorage.removeItem("channels");
       
       if (location.href === location.origin + '/') {
         location.reload();

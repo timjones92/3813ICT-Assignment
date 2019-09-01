@@ -1,7 +1,7 @@
-<div *ngIf="authenticated !== null" class="container mt-5">
+<div *ngIf="authenticated !== null && currentUser.role !== 'User'" class="container mt-5">
     <div class="mb-4 admin-bg">
         <mat-tab-group mat-stretch-tabs>
-            <mat-tab label="Users">
+            <mat-tab *ngIf="currentUser.role !== 'GroupAssis'" label="Users">
                 <!-- Users Adminstration -->
                 <div class="mb-4 p-2">
                     <form>
@@ -16,14 +16,19 @@
                                 <th style="width:15%">Role</th>
                                 <th>Groups</th>
                                 <th>Channels</th>
-                                <th></th>
+                                <th *ngIf="currentUser.role === 'SuperAdmin'"></th>
                             </thead>
                             <tbody class="bg-white">
                                 <tr *ngFor="let user of users; index as i">
                                     <td>{{i+1}}</td>
                                     <td><input type="text" class="form-control" placeholder="Username" [(ngModel)]="user.username" name="{{user.username}}"></td>
                                     <td><input type="text" class="form-control" placeholder="Email" [(ngModel)]="user.email" name="{{user.email}}"></td>
-                                    <td><input type="text" class="form-control" placeholder="Role" [(ngModel)]="user.role" name="{{user.role}}"></td>
+                                    <td *ngIf="user.role !== 'SuperAdmin' && user.role !== 'GroupAdmin'">
+                                        <input type="text" class="form-control" placeholder="Role" [(ngModel)]="user.role" name="{{user.role}}">
+                                    </td>
+                                    <td *ngIf="user.role === 'SuperAdmin' || user.role === 'GroupAdmin'">
+                                        <input type="text" class="form-control" placeholder="Role" [(ngModel)]="user.role" name="{{user.role}}" readonly>
+                                    </td>
                                     <td>
                                         <select class="form-control">
                                             <option *ngFor="let group of user.groups" placeholder="Groups">{{group.groupName}}</option>
@@ -34,19 +39,21 @@
                                             <option *ngFor="let channel of user.channels" placeholder="Channels">{{channel.channelName}} ({{channel.groupName}})</option>
                                         </select>
                                     </td>
-                                    <td><button type="button" class="btn btn-danger" (click)="deleteUser(user)"><i class="fas fa-times"></i></button></td>
+                                    <td *ngIf="currentUser.role === 'SuperAdmin'"><button type="button" class="btn btn-danger" (click)="deleteUser(user)"><i class="fas fa-times"></i></button></td>
                                 </tr>
                             </tbody>
                         </table>
                     </form>
                 </div>
             </mat-tab>
-            <mat-tab label="Groups">
+            <mat-tab *ngIf="currentUser.role !== 'GroupAssis'" label="Groups">
                 <!-- Groups Adminstration -->
                 <div class="my-2 p-2">
                     <form>
                         <h2 class="text-white">Groups</h2>
-                        <div class="form-row">
+                        <button type="submit" class="btn btn-success mr-2" (click)="addNewGroup()"><i class="fas fa-plus"></i> Add New Group</button>
+                        <button type="submit" class="btn btn-info" (click)="updateGroups()">Update Groups</button>
+                        <div class="form-row mt-2">
                             <div class="col-md-6 mb-1">
                                 <label class="text-white">Group Name</label>
                             </div>
@@ -67,6 +74,7 @@
                                     <ng-container *ngFor="let user of users">
                                         <ng-container *ngFor="let gp of user.groups">
                                             <option *ngIf="group.groupName === gp.groupName" [value]="user.username" id="groupUser">{{user.username}}</option>
+                                            <div>GroupAssis</div>
                                         </ng-container>
                                     </ng-container>
                                 </select>
@@ -76,8 +84,6 @@
                                 <button type="button" class="btn btn-success" (click)="addUserToGroup(group)"><i class="fas fa-plus"></i></button>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-success mr-2" (click)="addNewGroup()"><i class="fas fa-plus"></i> Add New Group</button>
-                        <button type="submit" class="btn btn-info" (click)="updateGroups()">Update Groups</button>
                     </form>
                 </div>
             </mat-tab>
@@ -88,48 +94,97 @@
                         <h2 class="text-white">Channels</h2>
                         <button type="submit" class="btn btn-success mr-2" (click)="addNewChannel()"><i class="fas fa-plus"></i> Add New Channel</button>
                         <button type="submit" class="btn btn-info" (click)="updateChannels()">Update Channels</button>
-                        
-                        <div *ngFor="let group of groups" class="p-2 mt-2 mb-4 border border-info bg-dark">
-                            <div>
-                                <h3 class="text-white">Group: {{group.groupName}}</h3>
-                                <hr class="border-white">
-                            </div>
-                            <div class="form-row text-white">
-                                <div class="col-md-6">
-                                    <label>Channels</label>
-                                </div>
-                                <div class="col-md-6">
-                                    <label>Users</label>
-                                </div>
-                            </div>
-                            <div *ngFor="let channel of channels">
-                                <ng-container *ngIf="group.groupID === channel.groupID">
-                                
-                                    <div class="form-row mb-2">
-                                        <div class="col-md-5 mb-2">
-                                            <input type="text" class="form-control" [(ngModel)]="channel.channelName" name="{{channel.channelName}}" placeholder="Type in the new channel name">
+                        <ng-container *ngFor="let group of groups; index as i">
+                            <ng-container *ngIf="currentUserGroups[i].groupID === group.groupID && currentUser.role === 'GroupAssis'">   
+                                <div class="p-2 mt-2 mb-4 border border-info bg-dark">
+                                    
+                                    <div>
+                                        <h3 class="text-white">Group: {{group.groupName}}</h3>
+                                        <hr class="border-white">
+                                    </div>
+                                    <div class="form-row text-white">
+                                        <div class="col-md-6">
+                                            <label>Channels</label>
                                         </div>
-                                        <div class="col-md-1">
-                                            <button type="button" class="btn btn-danger" (click)="deleteChannel(channel)"><i class="fas fa-times"></i></button>
-                                        </div>
-                                        
-                                        <div class="col-md-5">
-                                            <select class="form-control">
-                                                <ng-container *ngFor="let user of users">
-                                                    <ng-container *ngFor="let ch of user.channels">
-                                                        <option *ngIf="channel.channelID === ch.channelID" [value]="user.username" id="channelUser">{{user.username}}</option>
-                                                    </ng-container>
-                                                </ng-container>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-1">
-                                            <button type="button" class="btn btn-danger mr-1 px-auto" style="max-width:35px" (click)="deleteUserFromChannel(channel)"><i class="fas fa-times"></i></button>
-                                            <button type="button" class="btn btn-success" style="max-width:40px" (click)="addUserToChannel(channel)"><i class="fas fa-plus"></i></button>
+                                        <div class="col-md-6">
+                                            <label>Users</label>
                                         </div>
                                     </div>
-                                </ng-container>
-                            </div>
-                        </div>
+                                    <div *ngFor="let channel of channels">
+                                        <ng-container *ngIf="group.groupID === channel.groupID">
+                                        
+                                            <div class="form-row mb-2">
+                                                <div class="col-md-5 mb-2">
+                                                    <input type="text" class="form-control" [(ngModel)]="channel.channelName" name="{{channel.channelName}}" placeholder="Type in the new channel name">
+                                                </div>
+                                                <div class="col-md-1">
+                                                </div>
+                                                
+                                                <div class="col-md-5">
+                                                    <select class="form-control">
+                                                        <ng-container *ngFor="let user of users">
+                                                            <ng-container *ngFor="let ch of user.channels">
+                                                                <option *ngIf="channel.channelID === ch.channelID" [value]="user.username" id="channelUser">{{user.username}}</option>
+                                                            </ng-container>
+                                                        </ng-container>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-1">
+                                                    <button type="button" class="btn btn-danger mr-1 px-auto" style="max-width:35px" (click)="deleteUserFromChannel(channel)"><i class="fas fa-times"></i></button>
+                                                    <button type="button" class="btn btn-success" style="max-width:40px" (click)="addUserToChannel(channel)"><i class="fas fa-plus"></i></button>
+                                                </div>
+                                            </div>
+                                        </ng-container>
+                                    </div>
+                                </div>
+                            </ng-container>
+                        </ng-container>
+                        <ng-container *ngFor="let group of groups">
+                            <ng-container *ngIf="currentUser.role !== 'GroupAssis'">
+                                <div class="p-2 mt-2 mb-4 border border-info bg-dark">
+                            
+                                    <div>
+                                        <h3 class="text-white">Group: {{group.groupName}}</h3>
+                                        <hr class="border-white">
+                                    </div>
+                                    <div class="form-row text-white">
+                                        <div class="col-md-6">
+                                            <label>Channels</label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Users</label>
+                                        </div>
+                                    </div>
+                                    <div *ngFor="let channel of channels">
+                                        <ng-container *ngIf="group.groupID === channel.groupID">
+                                        
+                                            <div class="form-row mb-2">
+                                                <div class="col-md-5 mb-2">
+                                                    <input type="text" class="form-control" [(ngModel)]="channel.channelName" name="{{channel.channelName}}" placeholder="Type in the new channel name">
+                                                </div>
+                                                <div class="col-md-1">
+                                                    <button type="button" class="btn btn-danger" (click)="deleteChannel(channel)"><i class="fas fa-times"></i></button>
+                                                </div>
+                                                
+                                                <div class="col-md-5">
+                                                    <select class="form-control">
+                                                        <ng-container *ngFor="let user of users">
+                                                            <ng-container *ngFor="let ch of user.channels">
+                                                                <option *ngIf="channel.channelID === ch.channelID" [value]="user.username" id="channelUser">{{user.username}}</option>
+                                                            </ng-container>
+                                                        </ng-container>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-1">
+                                                    <button type="button" class="btn btn-danger mr-1 px-auto" style="max-width:35px" (click)="deleteUserFromChannel(channel)"><i class="fas fa-times"></i></button>
+                                                    <button type="button" class="btn btn-success" style="max-width:40px" (click)="addUserToChannel(channel)"><i class="fas fa-plus"></i></button>
+                                                </div>
+                                            </div>
+                                        </ng-container>
+                                    </div>
+                                </div>
+                            </ng-container>
+                        </ng-container>
                     </form>
                 </div>
             </mat-tab>

@@ -12,6 +12,7 @@ export class GroupComponent implements OnInit {
   users = [];
   currentUser = {};
   authenticated: string;
+  role: string;
 
   url = "http://localhost:3000/api/getAllUsers/";
   

@@ -16,6 +16,8 @@ export class AdminComponent implements OnInit {
   groups = [];
   users = [];
   channels = [];
+  currentUser = {username: "", email: "", role: "", groups: [], channels: []};
+  currentUserGroups = [];
 
   url = "http://localhost:3000/";
   // Groups URLs
@@ -65,7 +67,6 @@ export class AdminComponent implements OnInit {
 
   ngOnInit() {
     this.authenticated = this.readLocalStorageValue('username');
-    this.admin = this.readLocalStorageValue('role');
     
     // Get all groups on init load of page
     this.http.get(this.getallGroupsURL).subscribe(data => {
@@ -80,6 +81,19 @@ export class AdminComponent implements OnInit {
       console.log(data)
       if (data !== null) {
         this.users = data['users'];
+        // Get current user from all users and add to variable `currentUser`
+        for (let i = 0; i < this.users.length; i++) {
+          if (this.users[i].username === this.authenticated) {
+            this.currentUser = this.users[i]
+          }
+        }
+        for (let g = 0; g < this.groups.length; g++) {
+          if (this.currentUser.groups.find(x=> x.groupID === this.groups[g].groupID) !== undefined) {
+            this.currentUserGroups.push(this.currentUser.groups.find(x=> x.groupID === this.groups[g].groupID))
+          } else {
+            this.currentUserGroups.push({groupID: -1, groupName: ""})
+          }
+        }
       }
     });
 
@@ -91,6 +105,7 @@ export class AdminComponent implements OnInit {
       }
     });
     
+    console.log("Current User groups are:", this.currentUserGroups)
   }
 
   /**
@@ -186,25 +201,31 @@ export class AdminComponent implements OnInit {
     userDialogRef.afterClosed().subscribe(result => {
       newUser = result;
       if (result !== undefined) {
-        this.http.post(this.saveUserUrl, JSON.stringify(newUser), this.httpOptions).subscribe(    
-          data => {
-            console.log(data);
-            this.http.get(this.getUserURL).subscribe(data => {
-              console.log(data['users'])
-              this.groups = data['users'];
+        if (this.users.find(x => x.username === result.username)) {
+          alert("This username is already taken! Please enter a valid username.");
+        } else {
+          this.http.post(this.saveUserUrl, JSON.stringify(newUser), this.httpOptions).subscribe(    
+            data => {
+              console.log(data);
+              this.http.get(this.getUserURL).subscribe(data => {
+                console.log(data['users'])
+                this.groups = data['users'];
+                location.reload();
+              });
+            },    
+            (err: HttpErrorResponse) => {      
+              console.log(err.error);    
+            }
+          );
+          if (this.users.length === 0) {
+            setTimeout(function() {
               location.reload();
-            });
-          },    
-          (err: HttpErrorResponse) => {      
-            console.log(err.error);    
-          }
-        );
-        if (this.users.length === 0) {
-          setTimeout(function() {
-            location.reload();
-          }, 200);
+            }, 200);
+          }
         }
       }
+        
+        
       
     });
     
@@ -467,10 +488,36 @@ export interface UserDialogData {
 
 export class UserDialog {
 
+  useUrl = "http://localhost:3000/api/getAllUsers/";
+  allUsrs = [];
+  currentUsr: string;
+  auth: string;
+
+  // Check if current user function
+  readLocalStorageValue(key) {
+    return localStorage.getItem(key);
+  }
+
   constructor(
     public userDialogRef: MatDialogRef<UserDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: UserDialogData) {}
+    @Inject(MAT_DIALOG_DATA) public data: UserDialogData,
+    private http: HttpClient) {}
 
+  ngOnInit() {
+    this.auth = this.readLocalStorageValue('username');
+    // Get all users on init load of page
+    this.http.get(this.useUrl).subscribe(data => {
+      if (data !== null) {
+        this.allUsrs = data['users'];
+        // Get current user from all users and add to variable `currentUser`
+        for (let i = 0; i < this.allUsrs.length; i++) {
+          if (this.allUsrs[i].username === this.auth) {
+            this.currentUsr = this.allUsrs[i]
+          }
+        }
+      }
+    });
+  }
   onCancelClick(): void {
     this.userDialogRef.close();
   }

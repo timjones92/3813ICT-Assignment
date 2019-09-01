@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 import { Channel } from '../groups';
-import { ChannelService } from '../services/channel.service';
 import { SocketService } from '../services/socket.service';
 import { Location } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-channel',
@@ -13,10 +13,12 @@ import { Location } from '@angular/common';
 export class ChannelComponent implements OnInit {
 
   channelID: number;
-  channels: Channel;
+  channels: [Channel];
+  selectedChannel: Channel;
   sub;
   today;
   datestamps:string[] = [];
+  url = "http://localhost:3000/api/getAllChannels/";
 
   messagecontent:string = "";
   messages:string[] = [];
@@ -25,17 +27,29 @@ export class ChannelComponent implements OnInit {
   constructor(
     private route: ActivatedRoute, 
     private router: Router,
-    private channelService: ChannelService,
     private socketService: SocketService,
-    private _location: Location
+    private _location: Location,
+    private http: HttpClient
     ) { }
 
   ngOnInit() {
     this.sub = this.route.paramMap.subscribe(params => {
       this.channelID = +params.get('id');
-      this.channels = this.channelService.getChannel(this.channelID);
+      
     });
-
+    // Get all channels on init load of page
+    this.http.get(this.url).subscribe(data => {
+      if (data !== null) {
+        this.channels = data['channels'];
+        for (let i = 0; i < this.channels.length; i++) {
+          if (this.channels[i].channelID === this.channelID) {
+            this.selectedChannel = this.channels[i];
+            console.log("Selected Channel is:", this.selectedChannel)
+          }
+        }
+      }
+    });
+    
     this.initToConnection();
   }
 

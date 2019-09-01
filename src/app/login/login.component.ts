@@ -1,7 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { User } from '../users';
-import { ChannelService } from '../services/channel.service';
-import { GroupsService } from '../services/groups.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-login',
@@ -10,54 +8,41 @@ import { GroupsService } from '../services/groups.service';
 })
 export class LoginComponent implements OnInit {
 
-  username = "";
+  enteredUsername = "";
   authenticated: string;
-  
+  users = [];
+  url = "http://localhost:3000/api/getAllUsers/";
+  error = "";
+
   // Check if current user function
   readLocalStorageValue(key) {
     return localStorage.getItem(key);
   }
 
-  // Initial Super User
-  users = [
-    new User(
-      "Super", 
-      "superadmin@chatapp.com", 
-      "SuperAdmin", 
-      this.groupService.getGroups(), 
-      this.channelService.getChannels()
-      )
-  ]
 
-  constructor(private channelService: ChannelService, private groupService: GroupsService) { }
+  constructor(private http: HttpClient) { }
   
-  ngOnInit(){
+  ngOnInit() {
     this.authenticated = this.readLocalStorageValue('username');
+
+    // Get all users on init load of page
+    this.http.get(this.url).subscribe(data => {
+      if (data !== null) {
+        this.users = data['users'];
+      }
+    });
   }
 
   getData() {
-    var getUser = this.username;
-    var groupList = []
-    var channelList = []
-
-    if (this.users.some(person => (person.username == getUser))) {
-      var currentUser = this.users.find(u => u.username == this.username)
-      localStorage.setItem("username", currentUser.username);
-      localStorage.setItem("email", currentUser.email);
-      localStorage.setItem("role", currentUser.role);
-      for (let i = 0; i < currentUser.groups.length; i++) {
-        groupList.push(currentUser.groups[i].groupName);
+    // If entered username in login field is a valid in user storage file
+    for (let i = 0; i < this.users.length; i++) {
+      if (this.enteredUsername === this.users[i].username) {
+        var currentUser = this.users.find(u => u.username == this.enteredUsername)
+        localStorage.setItem("username", currentUser.username);
+        location.reload();
+      } else {
+        this.error = "Not a valid user."
       }
-      localStorage.setItem("groups", JSON.stringify(groupList));
-      for (let i = 0; i < currentUser.channels.length; i++) {
-        var storeChannel = {group: "", id: 0, name: ""}
-        storeChannel.group = currentUser.channels[i].groupName;
-        storeChannel.id = currentUser.channels[i].channelID;
-        storeChannel.name = currentUser.channels[i].channelName;
-        channelList.push(storeChannel)
-      }
-      localStorage.setItem("channels", JSON.stringify(channelList));
-      location.reload();
     }
   }
 }

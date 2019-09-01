@@ -16,6 +16,8 @@ app.use(bodyParser.json());
 
 // Get login route 
 require('./routes/login.js')(app, path);
+// Get channel route
+require('./routes/channel.js')(app, path);
 
 // Port for server
 const PORT = 3000;

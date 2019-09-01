@@ -1,8 +1,8 @@
 <div class="container p-2 channel-body">
     <h2 class="text-info">Talking in channel: 
-        <span class="text-success">{{channels.channelName}}</span>
+        <span *ngIf="selectedChannel !== undefined" class="text-success">{{selectedChannel.channelName}}</span>
     </h2>
-    <button class="btn btn-outline-light btn-sm" (click)="goBack()">< Go back</button>
+    <button class="btn btn-outline-light btn-sm" (click)="goBack()">Go back</button>
     <br><br>
     <h4 class="text-white">Chat Messages</h4>
     <div class="card-body msg_body">
