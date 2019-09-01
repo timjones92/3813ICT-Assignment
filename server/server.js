@@ -12,7 +12,7 @@ var fs = require('fs')
 // Using middleware to parse JSON data
 app.use(bodyParser.json());
 // Serve static content for the app
-//app.use(express.static(path.join(__dirname,'../dist/ChatApp/')));
+app.use(express.static(path.join(__dirname,'../dist/ChatApp/')));
 
 // Get login route 
 require('./routes/login.js')(app, path);

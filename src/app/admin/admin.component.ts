@@ -18,6 +18,8 @@ export class AdminComponent implements OnInit {
   channels = [];
   currentUser = {username: "", email: "", role: "", groups: [], channels: []};
   currentUserGroups = [];
+  groupAssis = {groupID: 0, groupName: "", username: ""};
+  groupAssisList = [];
 
   url = "http://localhost:3000/";
   // Groups URLs
@@ -180,6 +182,10 @@ export class AdminComponent implements OnInit {
     }
   }
 
+  addGroupAssis() {
+    this.groupAssis
+  }
+
   /**
   *******************************
   ***** USERS DATA HANDLING *****
@@ -200,6 +206,8 @@ export class AdminComponent implements OnInit {
     
     userDialogRef.afterClosed().subscribe(result => {
       newUser = result;
+      newUser.groups = [];
+      newUser.channels = [];
       if (result !== undefined) {
         if (this.users.find(x => x.username === result.username)) {
           alert("This username is already taken! Please enter a valid username.");
@@ -603,10 +611,41 @@ export interface AddChannelUserDialogData {
 
 export class AddChannelUserDialog {
 
+  useUrl = "http://localhost:3000/api/getAllUsers/";
+  groupUrl = "http://localhost:3000/api/getAllGroups/";
+  allUsrs = [];
+  allGrps = [];
+  validUsers = [];
+
   constructor(
     public addChannelUserDialogRef: MatDialogRef<AddChannelUserDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: AddChannelUserDialogData) {}
+    @Inject(MAT_DIALOG_DATA) public data: AddChannelUserDialogData, 
+    private http: HttpClient) {}
     
+  ngOnInit() {
+    // Get all users on init load of page
+    this.http.get(this.useUrl).subscribe(data => {
+      if (data !== null) {
+        this.allUsrs = data['users'];
+        this.http.get(this.groupUrl).subscribe(groups => {
+          if (groups !== null) {
+            this.allGrps = groups['groups'];
+            // Get current user from all users and add to variable `currentUser`
+            for (let i = 0; i < this.allUsrs.length; i++) {
+              for (let g = 0; g < this.allGrps.length; g++) {
+                if (this.allUsrs[i].groups.find(x => x.groupID === this.allGrps[g].groupID)) {
+                  this.validUsers.push(this.allUsrs[i]);
+                }
+              }
+              
+            }
+          }
+        });
+          
+      }
+    });
+  }
+
   onCancelClick(): void {
     this.addChannelUserDialogRef.close();
   }

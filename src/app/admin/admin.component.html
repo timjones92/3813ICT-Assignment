@@ -23,11 +23,17 @@
                                     <td>{{i+1}}</td>
                                     <td><input type="text" class="form-control" placeholder="Username" [(ngModel)]="user.username" name="{{user.username}}"></td>
                                     <td><input type="text" class="form-control" placeholder="Email" [(ngModel)]="user.email" name="{{user.email}}"></td>
-                                    <td *ngIf="user.role !== 'SuperAdmin' && user.role !== 'GroupAdmin'">
+                                    <td *ngIf="user.role !== 'SuperAdmin' && user.role !== 'GroupAdmin' && currentUser.role !== 'SuperAdmin'">
                                         <input type="text" class="form-control" placeholder="Role" [(ngModel)]="user.role" name="{{user.role}}">
                                     </td>
-                                    <td *ngIf="user.role === 'SuperAdmin' || user.role === 'GroupAdmin'">
+                                    <td *ngIf="user.role === 'SuperAdmin' && currentUser.role === 'GroupAdmin'">
                                         <input type="text" class="form-control" placeholder="Role" [(ngModel)]="user.role" name="{{user.role}}" readonly>
+                                    </td>
+                                    <td *ngIf="user.role === 'GroupAdmin' && currentUser.role === 'GroupAdmin'">
+                                        <input type="text" class="form-control" placeholder="Role" [(ngModel)]="user.role" name="{{user.role}}" readonly>
+                                    </td>
+                                    <td *ngIf="currentUser.role === 'SuperAdmin'">
+                                        <input type="text" class="form-control" placeholder="Role" [(ngModel)]="user.role" name="{{user.role}}">
                                     </td>
                                     <td>
                                         <select class="form-control">
@@ -74,7 +80,6 @@
                                     <ng-container *ngFor="let user of users">
                                         <ng-container *ngFor="let gp of user.groups">
                                             <option *ngIf="group.groupName === gp.groupName" [value]="user.username" id="groupUser">{{user.username}}</option>
-                                            <div>GroupAssis</div>
                                         </ng-container>
                                     </ng-container>
                                 </select>
