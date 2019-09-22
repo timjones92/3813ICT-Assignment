@@ -10,6 +10,12 @@
                 </div>
                 <input type="text" required [(ngModel)]="enteredUsername" name="enteredUsername" class="form-control" placeholder="Enter username">
             </div>
+            <div class="input-group my-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text bg-info"><i class="fas fa-key"></i></span>
+                </div>
+                <input type="password" required [(ngModel)]="enteredPassword" name="enteredPassword" class="form-control" placeholder="Enter password">
+            </div>
             <div *ngIf="error !== ''" class="text-danger" style="font-size: 14px">
                 {{error}}
             </div>

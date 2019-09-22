@@ -7,7 +7,7 @@ import { User } from '../users';
 })
 export class UserService {
 
-  url = "http://localhost:3000/"
+  url = "http://localhost:3000"
 
   constructor(private http: HttpClient) { }
 
@@ -23,8 +23,8 @@ export class UserService {
     return this.http.post<any>(this.url + "/api/updateUsers", users);
   }
 
-  deleteUser(username) {
-    return this.http.post<any>(this.url + "/api/deleteUser", {'username': username});
+  deleteUser(user) {
+    return this.http.post<any>(this.url + "/api/deleteUser", user);
   }
 
   checkValidId(username) {

@@ -167,7 +167,7 @@ export class AdminComponent implements OnInit {
   *******************************
   */
   addNewUser() {
-    let newUser = new User("", "", "", "");
+    let newUser = new User("", "password", "", "", "");
     
     const userDialogRef = this.dialog.open(UserDialog, {
       height: '400px',
@@ -176,7 +176,7 @@ export class AdminComponent implements OnInit {
         username: newUser.username,
         password: newUser.password,
         email: newUser.email,
-        role: newUser.role,
+        role: newUser.role
       }
     });
     
@@ -207,9 +207,10 @@ export class AdminComponent implements OnInit {
     
   }
 
-  deleteUser(username) {
-    if (confirm("Are you sure you want to delete " + username + "?")) {
-      this.userData.deleteUser(username).subscribe(data => {
+  deleteUser(user) {
+    if (confirm("Are you sure you want to delete " + user.username + "?")) {
+      console.log("User to delete is:", user)
+      this.userData.deleteUser(user).subscribe(data => {
         this.users = data;
       });
     }
@@ -448,7 +449,6 @@ export interface UserDialogData {
 
 export class UserDialog {
 
-  useUrl = "http://localhost:3000/api/getAllUsers/";
   allUsrs = [];
   currentUsr: string;
   auth: string;
@@ -461,7 +461,6 @@ export class UserDialog {
   constructor(
     public userDialogRef: MatDialogRef<UserDialog>,
     @Inject(MAT_DIALOG_DATA) public data: UserDialogData,
-    private http: HttpClient,
     private userData: UserService) {}
 
   ngOnInit() {
@@ -470,10 +469,11 @@ export class UserDialog {
     this.userData.getUsersList().subscribe(data => {
       if (data !== null) {
         this.allUsrs = data;
+        console.log("All users are:", this.allUsrs);
         // Get current user from all users and add to variable `currentUser`
         for (let i = 0; i < this.allUsrs.length; i++) {
           if (this.allUsrs[i].username === this.auth) {
-            this.currentUsr = this.allUsrs[i]
+            this.currentUsr = this.allUsrs[i];
           }
         }
       }

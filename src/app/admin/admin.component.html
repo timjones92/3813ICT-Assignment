@@ -47,7 +47,7 @@
                                             <option *ngFor="let channel of user.channels" placeholder="Channels">{{channel.channelName}} ({{channel.groupName}})</option>
                                         </select>
                                     </td> -->
-                                    <td *ngIf="currentUser.role === 'SuperAdmin'"><button type="button" class="btn btn-danger" (click)="deleteUser(user.username)"><i class="fas fa-times"></i></button></td>
+                                    <td *ngIf="currentUser.role === 'SuperAdmin'"><button type="button" class="btn btn-danger" (click)="deleteUser(user)"><i class="fas fa-times"></i></button></td>
                                 </tr>
                             </tbody>
                         </table>

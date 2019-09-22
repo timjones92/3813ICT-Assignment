@@ -7,8 +7,9 @@
     <br>
     <mat-form-field>
         <mat-label>User password defaults to password</mat-label>
-        <input matInput [(ngModel)]="data.password" value="password" readonly>
+        <input matInput type="password" [(ngModel)]="data.password" placeholder="password" readonly>
     </mat-form-field>
+    <br>
     <mat-form-field>
         <mat-label>Type in new user's email address</mat-label>
         <input matInput [(ngModel)]="data.email" placeholder="Enter email address">

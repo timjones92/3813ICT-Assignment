@@ -37,12 +37,17 @@ module.exports = function(db, app, ObjectID) {
             return res.sendStatus(400);
         }
         users = req.body;
-        var objectid = new ObjectID(users._id);
         const collection = db.collection('users');
-        collection.updateMany({_id:objectid}, {$set:{username:users.username, password:users.password, email:users.email, role:users.role}}, () => {
-            // Return a response to the client to let them know the update was successful
-            res.send({'ok': users._id});
-        })
+        for (let i = 0; i < users.length; i++) {
+            var objectid = new ObjectID(users[i]._id);
+            collection.updateOne({_id:objectid}, {$set:{username:users[i].username, password:users[i].password, email:users[i].email, role:users[i].role, avatar:users[i].avatar}}, () => {
+                
+            })
+        }
+        // Return a response to the client to let them know the update was successful
+        res.send({'ok': users});
+        
+        
     });
 
     // Route to delete a single user
@@ -50,9 +55,9 @@ module.exports = function(db, app, ObjectID) {
         if (!req.body) {
             return res.sendStatus(400);
         }
-        username = req.body.username;
+        user = req.body;
         // Create a new mongo Object ID from the passed in _id
-        var objectid = new ObjectID(username);
+        var objectid = new ObjectID(user._id);
         const collection = db.collection('users');
         // Delete a single product based on unique ID
         collection.deleteOne({_id:objectid}, (err, docs) => {
