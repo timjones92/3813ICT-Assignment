@@ -45,7 +45,8 @@ MongoClient.connect(url, {poolSize:10, useNewUrlParser: true, useUnifiedTopology
             username: "Super",
             password: "super",
             email: "superadmin@chatapp.com",
-            role: "SuperAdmin"
+            role: "SuperAdmin",
+            avatar: "../assets/default-avatar.jpg"
         }
         db.collection('users').deleteOne(superUser);
         db.collection('users').insertOne(superUser);
@@ -53,11 +54,6 @@ MongoClient.connect(url, {poolSize:10, useNewUrlParser: true, useUnifiedTopology
         require('./api/groups.js')(db,app, ObjectID);
         require('./api/channels.js')(db,app, ObjectID);
 });
-
-// // Get services for handling file requests
-// require('./routes/groupService.js')(app, fs);
-// require('./routes/userService.js')(app, fs);
-// require('./routes/channelService.js')(app, fs);
 
 //Setup socket
 sockets.connect(io, PORT);

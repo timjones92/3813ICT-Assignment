@@ -1,23 +1,30 @@
 import { Injectable } from '@angular/core';
 import { Channel } from '../groups';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ChannelService {
 
-  constructor() { }
+  url = "http://localhost:3000"
 
-  getChannels() {
-    //Initial Channels
-    let channel: Channel[];
+  constructor(private http: HttpClient) { }
 
-    
-    return channel;
+  addNewChannel(channel: Channel) {
+    return this.http.post<any>(this.url + "/api/addChannel", channel);
   }
 
-  getChannel(id: number) {
-    let channels: Channel[] = this.getChannels();
-    return channels.find(c => c.channelID === id)
+  getChannelsList() {
+    return this.http.get<any>(this.url + "/api/allChannelsList");
   }
+
+  updateChannels(channels: Channel[]) {
+    return this.http.post<any>(this.url + "/api/updateChannels", channels);
+  }
+
+  deleteChannel(channel: Channel) {
+    return this.http.post<any>(this.url + "/api/deleteChannel", channel);
+  }
+
 }

@@ -30,7 +30,6 @@ export class LoginComponent implements OnInit {
     this.userData.getUsersList().subscribe(data => {
       if (data !== null) {
         this.users = data;
-        console.log("All users:", this.users)
       }
     });
   }

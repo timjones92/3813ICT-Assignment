@@ -37,12 +37,15 @@ module.exports = function(db, app, ObjectID) {
             return res.sendStatus(400);
         }
         groups = req.body;
-        var objectid = new ObjectID(group._id);
         const collection = db.collection('groups');
-        collection.updateMany({_id:objectid}, {$set:{groupID:groups.groupID, groupName:groups.groupName}}, () => {
-            // Return a response to the client to let them know the update was successful
-            res.send({'ok': group._id});
-        })
+        for (let i = 0; i < groups.length; i++) {
+            var objectid = new ObjectID(groups[i]._id);
+            collection.updateMany({_id:objectid}, {$set:{groupID:groups[i].groupID, groupName:groups[i].groupName}}, () => {
+                        
+            });
+        }
+        // Return a response to the client to let them know the update was successful
+        res.send({'ok': groups});
     });
 
     // Route to delete a single group
@@ -50,9 +53,9 @@ module.exports = function(db, app, ObjectID) {
         if (!req.body) {
             return res.sendStatus(400);
         }
-        groupID = req.body.groupid;
+        group = req.body;
         // Create a new mongo Object ID from the passed in _id
-        var objectid = new ObjectID(groupID);
+        var objectid = new ObjectID(group._id);
         const collection = db.collection('groups');
         // Delete a single product based on unique ID
         collection.deleteOne({_id:objectid}, (err, docs) => {

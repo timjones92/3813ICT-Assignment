@@ -11,6 +11,7 @@
                         <table class="table table-striped table-hover table-bordered">
                             <thead class="thead-dark">
                                 <th>#</th>
+                                <th>Avatar</th>
                                 <th>Username</th>
                                 <th>Password</th>
                                 <th>Email</th>
@@ -21,20 +22,21 @@
                             </thead>
                             <tbody class="bg-white">
                                 <tr *ngFor="let user of users; index as i">
-                                    <td>{{i+1}}</td>
-                                    <td><input type="text" class="form-control" placeholder="Username" [(ngModel)]="user.username" name="{{user.username}}"></td>
-                                    <td><input type="text" class="form-control" placeholder="Password" [(ngModel)]="user.password" name="{{user.password}}"></td>
-                                    <td><input type="text" class="form-control" placeholder="Email" [(ngModel)]="user.email" name="{{user.email}}"></td>
-                                    <td *ngIf="user.role !== 'SuperAdmin' && user.role !== 'GroupAdmin' && currentUser.role !== 'SuperAdmin'">
+                                    <td class="align-middle">{{i+1}}</td>
+                                    <td class="align-middle text-center"><img src="{{user.avatar}}" alt="user-avatar" style="width:3em"></td>
+                                    <td class="align-middle"><input type="text" class="form-control" placeholder="Username" [(ngModel)]="user.username" name="{{user.username}}"></td>
+                                    <td class="align-middle"><input type="text" class="form-control" placeholder="Password" [(ngModel)]="user.password" name="{{user.password}}"></td>
+                                    <td class="align-middle"><input type="text" class="form-control" placeholder="Email" [(ngModel)]="user.email" name="{{user.email}}"></td>
+                                    <td class="align-middle" *ngIf="user.role !== 'SuperAdmin' && user.role !== 'GroupAdmin' && currentUser.role !== 'SuperAdmin'">
                                         <input type="text" class="form-control" placeholder="Role" [(ngModel)]="user.role" name="{{user.role}}">
                                     </td>
-                                    <td *ngIf="user.role === 'SuperAdmin' && currentUser.role === 'GroupAdmin'">
+                                    <td class="align-middle" *ngIf="user.role === 'SuperAdmin' && currentUser.role === 'GroupAdmin'">
                                         <input type="text" class="form-control" placeholder="Role" [(ngModel)]="user.role" name="{{user.role}}" readonly>
                                     </td>
-                                    <td *ngIf="user.role === 'GroupAdmin' && currentUser.role === 'GroupAdmin'">
+                                    <td class="align-middle" *ngIf="user.role === 'GroupAdmin' && currentUser.role === 'GroupAdmin'">
                                         <input type="text" class="form-control" placeholder="Role" [(ngModel)]="user.role" name="{{user.role}}" readonly>
                                     </td>
-                                    <td *ngIf="currentUser.role === 'SuperAdmin'">
+                                    <td class="align-middle" *ngIf="currentUser.role === 'SuperAdmin'">
                                         <input type="text" class="form-control" placeholder="Role" [(ngModel)]="user.role" name="{{user.role}}">
                                     </td>
                                     <!-- <td>
@@ -47,7 +49,7 @@
                                             <option *ngFor="let channel of user.channels" placeholder="Channels">{{channel.channelName}} ({{channel.groupName}})</option>
                                         </select>
                                     </td> -->
-                                    <td *ngIf="currentUser.role === 'SuperAdmin'"><button type="button" class="btn btn-danger" (click)="deleteUser(user)"><i class="fas fa-times"></i></button></td>
+                                    <td class="align-middle" *ngIf="currentUser.role === 'SuperAdmin'"><button type="button" class="btn btn-danger" (click)="deleteUser(user)"><i class="fas fa-times"></i></button></td>
                                 </tr>
                             </tbody>
                         </table>

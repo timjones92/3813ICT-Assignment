@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-group',
@@ -13,15 +14,13 @@ export class GroupComponent implements OnInit {
   currentUser = {};
   authenticated: string;
   role: string;
-
-  url = "http://localhost:3000/api/getAllUsers/";
   
   // Check if current user function
   readLocalStorageValue(key) {
     return localStorage.getItem(key);
   }
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private userData: UserService) { }
 
   ngOnInit() {
     this.authenticated = this.readLocalStorageValue('username');
@@ -31,9 +30,9 @@ export class GroupComponent implements OnInit {
     }
     
     // Get all users on init load of page
-    this.http.get(this.url).subscribe(data => {
+    this.userData.getUsersList().subscribe(data => {
       if (data !== null) {
-        this.users = data['users'];
+        this.users = data;
         // Get current user from all users and add to variable `currentUser`
         for (let i = 0; i < this.users.length; i++) {
           if (this.users[i].username === this.localUsername) {

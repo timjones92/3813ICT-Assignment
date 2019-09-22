@@ -10,7 +10,7 @@ import { HttpClient } from '@angular/common/http';
 
 export class GroupsService {
 
-  url = "http://localhost:3000/"
+  url = "http://localhost:3000"
 
   constructor(private http: HttpClient) { }
 
@@ -26,8 +26,8 @@ export class GroupsService {
     return this.http.post<any>(this.url + "/api/updateGroups", groups);
   }
 
-  deleteGroup(groupID) {
-    return this.http.post<any>(this.url + "/api/deleteGroup", {'groupID': groupID});
+  deleteGroup(group) {
+    return this.http.post<any>(this.url + "/api/deleteGroup", group);
   }
 
   checkValidId(groupID) {
