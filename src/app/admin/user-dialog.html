@@ -6,6 +6,10 @@
     </mat-form-field>
     <br>
     <mat-form-field>
+        <mat-label>User password defaults to password</mat-label>
+        <input matInput [(ngModel)]="data.password" value="password" readonly>
+    </mat-form-field>
+    <mat-form-field>
         <mat-label>Type in new user's email address</mat-label>
         <input matInput [(ngModel)]="data.email" placeholder="Enter email address">
     </mat-form-field>
@@ -15,7 +19,6 @@
         <mat-select [(value)]="data.role">
             <mat-option *ngIf="currentUsr.role === 'SuperAdmin'" value="SuperAdmin">SuperAdmin</mat-option>
             <mat-option *ngIf="currentUsr.role === 'SuperAdmin'" value="GroupAdmin">GroupAdmin</mat-option>
-            <mat-option value="GroupAssis">GroupAssis</mat-option>
             <mat-option value="User">User</mat-option>
         </mat-select>
     </mat-form-field>

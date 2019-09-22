@@ -3,6 +3,8 @@ import { Group, Channel } from '../groups';
 import { User } from '../users';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { GroupsService } from '../services/groups.service';
+import { UserService } from '../services/user.service';
 
 
 @Component({
@@ -13,7 +15,7 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 
 export class AdminComponent implements OnInit {
   
-  groups = [];
+  groups: Group[] = [];
   users = [];
   channels = [];
   currentUser = {username: "", email: "", role: "", groups: [], channels: []};
@@ -22,21 +24,6 @@ export class AdminComponent implements OnInit {
   groupAssisList = [];
 
   url = "http://localhost:3000/";
-  // Groups URLs
-  getallGroupsURL = this.url + "api/getAllGroups/";
-  saveUrl = this.url + "api/saveGroup/";
-  getURL = this.url + "api/getGroup/";
-  updateGroupURL = this.url + "api/updateGroup/";
-  deleteGroupURL = this.url + "api/deleteGroup/";
-
-  // Users URLs
-  getallUsersURL = this.url + "api/getAllUsers/";
-  saveUserUrl = this.url + "api/saveUser/";
-  getUserURL = this.url + "api/getUser/";
-  updateUserURL = this.url + "api/updateUser/";
-  deleteUserURL = this.url + "api/deleteUser/";
-  addUserToGroupURL = this.url + "api/addUserToGroup/";
-  deleteUserFromGroupURL = this.url + "api/deleteUserFromGroup/";
 
   // Channels URLs
   getallChannelsURL = this.url + "api/getAllChannels/";
@@ -64,38 +51,38 @@ export class AdminComponent implements OnInit {
 
   constructor(
     public dialog: MatDialog,
-    private http: HttpClient
+    private http: HttpClient,
+    private groupsData: GroupsService,
+    private userData: UserService
     ) { }
 
   ngOnInit() {
     this.authenticated = this.readLocalStorageValue('username');
     
     // Get all groups on init load of page
-    this.http.get(this.getallGroupsURL).subscribe(data => {
-      console.log(data)
-      if (data !== null) {
-        this.groups = data['groups'];
-      }
+    this.groupsData.getGroupsList().subscribe((data) => {
+      this.groups = data;
+      console.log(this.groups);
     });
 
     // Get all users on init load of page
-    this.http.get(this.getallUsersURL).subscribe(data => {
+    this.userData.getUsersList().subscribe(data => {
       console.log(data)
       if (data !== null) {
-        this.users = data['users'];
+        this.users = data;
         // Get current user from all users and add to variable `currentUser`
         for (let i = 0; i < this.users.length; i++) {
           if (this.users[i].username === this.authenticated) {
             this.currentUser = this.users[i]
           }
         }
-        for (let g = 0; g < this.groups.length; g++) {
-          if (this.currentUser.groups.find(x=> x.groupID === this.groups[g].groupID) !== undefined) {
-            this.currentUserGroups.push(this.currentUser.groups.find(x=> x.groupID === this.groups[g].groupID))
-          } else {
-            this.currentUserGroups.push({groupID: -1, groupName: ""})
-          }
-        }
+        // for (let g = 0; g < this.groups.length; g++) {
+        //   if (this.currentUser.groups.find(x=> x.groupID === this.groups[g].groupID) !== undefined) {
+        //     this.currentUserGroups.push(this.currentUser.groups.find(x=> x.groupID === this.groups[g].groupID))
+        //   } else {
+        //     this.currentUserGroups.push({groupID: -1, groupName: ""})
+        //   }
+        // }
       }
     });
 
@@ -134,25 +121,17 @@ export class AdminComponent implements OnInit {
         }
       }
       newGroup.groupName = result;
+      
       if (result !== undefined) {
-        this.http.post(this.saveUrl, JSON.stringify(newGroup), this.httpOptions).subscribe(    
-          data => {
-            console.log(data);
-            this.http.get(this.getURL).subscribe(data => {
-              console.log(data['groups'])
-              this.groups = data['groups'];
-              location.reload();
-            });
-          },    
-          (err: HttpErrorResponse) => {      
-            console.log(err.error);    
-          }
-        );
-        if (this.groups.length === 0) {
-          setTimeout(function() {
-            location.reload();
-          }, 200);
-        }
+        this.groups.push(newGroup);
+        // Send new group to server to add to db
+        this.groupsData.addNewGroup(newGroup).subscribe((data) => {
+          if (data.err == null) {
+            alert(data.num + " new group (" + newGroup.groupName + ") was added.");
+          } else {
+            alert(data.err);
+          }
+        });
       }
       
     });
@@ -160,25 +139,21 @@ export class AdminComponent implements OnInit {
   }
 
   updateGroups() {
-    this.http.post(this.updateGroupURL, JSON.stringify(this.groups), this.httpOptions).subscribe(
+    this.groupsData.updateGroups(this.groups).subscribe(
       data => {
         console.log(data);
-        location.reload();
+        alert("Updated all Groups.")
       }
     );
     
   }
 
-  deleteGroup(group) {
-    let index = this.groups.indexOf(group);
-    if (confirm("Are you sure you want to delete the " + group.groupName + " group?" +
+  deleteGroup(groupID) {
+    if (confirm("Are you sure you want to delete this group?" +
     "\nWARNING: This will cause all channels in the group to be deleted.")) {
-      this.http.post(this.deleteGroupURL, this.groups[index], this.httpOptions).subscribe(
-        data => {
-          console.log(data);
-          location.reload();
-        }
-      );
+      this.groupsData.deleteGroup(groupID).subscribe(data => {
+        this.groups = data;
+      });
     }
   }
 
@@ -192,13 +167,14 @@ export class AdminComponent implements OnInit {
   *******************************
   */
   addNewUser() {
-    let newUser = new User("", "", "", Group[""], Channel[""]);
+    let newUser = new User("", "", "", "");
     
     const userDialogRef = this.dialog.open(UserDialog, {
       height: '400px',
       width: '600px',
       data: {
         username: newUser.username,
+        password: newUser.password,
         email: newUser.email,
         role: newUser.role,
       }
@@ -206,115 +182,94 @@ export class AdminComponent implements OnInit {
     
     userDialogRef.afterClosed().subscribe(result => {
       newUser = result;
-      newUser.groups = [];
-      newUser.channels = [];
       if (result !== undefined) {
-        if (this.users.find(x => x.username === result.username)) {
-          alert("This username is already taken! Please enter a valid username.");
-        } else {
-          this.http.post(this.saveUserUrl, JSON.stringify(newUser), this.httpOptions).subscribe(    
-            data => {
-              console.log(data);
-              this.http.get(this.getUserURL).subscribe(data => {
-                console.log(data['users'])
-                this.groups = data['users'];
-                location.reload();
-              });
-            },    
-            (err: HttpErrorResponse) => {      
-              console.log(err.error);    
-            }
-          );
-          if (this.users.length === 0) {
-            setTimeout(function() {
-              location.reload();
-            }, 200);
-          }
-        }
+        this.users.push(newUser);
+        // Send user to server to add to db
+        this.userData.addNewUser(newUser).subscribe(    
+          data => {
+            console.log("Added new user:", data);
+          },    
+          (err: HttpErrorResponse) => {      
+            console.log(err.error);    
+        });
       }
-        
-        
-      
     });
     
   }
 
   updateUsers() {
-    this.http.post(this.updateUserURL, JSON.stringify(this.users), this.httpOptions).subscribe(
+    this.userData.updateUsers(this.users).subscribe(
       data => {
-        console.log(data);
-        location.reload();
+        alert("Updated all users");
+        console.log(data)
       }
     );
     
   }
 
-  deleteUser(user) {
-    let index = this.users.indexOf(user);
-    console.log(index);
-    this.http.post(this.deleteUserURL, this.users[index], this.httpOptions).subscribe(
-      data => {
-        console.log(data);
-        location.reload();
-      }
-    );
-  }
-
-  addUserToGroup(group) {
-    const addGroupUserDialogRef = this.dialog.open(AddGroupUserDialog, {
-      height: '400px',
-      width: '600px',
-      data: {
-        users: this.users,
-        groupName: group.groupName
-      }
-    });
-    addGroupUserDialogRef.afterClosed().subscribe(result => {
-      console.log(result);
-      let index = this.groups.indexOf(group);
-      if (result !== undefined) {
-        this.http.post(this.addUserToGroupURL, {groupID: this.groups[index].groupID, groupName: this.groups[index].groupName, user: result}, this.httpOptions).subscribe(
-          data => {
-            console.log(data)
-            location.reload();
-          }
-        );
-      }
-    });
-  }
-
-  deleteUserFromGroup(group) {
-    var matchingUsers = []
-    for (let i = 0; i < this.users.length; i++) {
-      if (this.users[i].groups) {
-        if (this.users[i].groups.find(x => x.groupID === group.groupID) !== undefined) {
-          matchingUsers.push(this.users[i])
-        }
-      }
+  deleteUser(username) {
+    if (confirm("Are you sure you want to delete " + username + "?")) {
+      this.userData.deleteUser(username).subscribe(data => {
+        this.users = data;
+      });
     }
-    //console.log(matchingUsers)
-    const deleteUserFromGroupDialogRef = this.dialog.open(DeleteUserFromGroupDialog, {
-      height: '400px',
-      width: '600px',
-      data: {
-        users: matchingUsers,
-        groupID: group.groupID,
-        groupName: group.groupName
-      }
-    });
-    deleteUserFromGroupDialogRef.afterClosed().subscribe(result => {
-      console.log(result)
-      let index = this.groups.indexOf(group);
-      if (result !== undefined) {
-        this.http.post(this.deleteUserFromGroupURL, {groupID: this.groups[index].groupID, groupName: this.groups[index].groupName, user: result}, this.httpOptions).subscribe(
-          data => {
-            console.log(data)
-            location.reload();
-          }
-        );
-      }
-    });
   }
+
+  // addUserToGroup(group) {
+  //   const addGroupUserDialogRef = this.dialog.open(AddGroupUserDialog, {
+  //     height: '400px',
+  //     width: '600px',
+  //     data: {
+  //       users: this.users,
+  //       groupName: group.groupName
+  //     }
+  //   });
+  //   addGroupUserDialogRef.afterClosed().subscribe(result => {
+  //     console.log(result);
+  //     let index = this.groups.indexOf(group);
+  //     if (result !== undefined) {
+  //       this.http.post(this.addUserToGroupURL, {groupID: this.groups[index].groupID, groupName: this.groups[index].groupName, user: result}, this.httpOptions).subscribe(
+  //         data => {
+  //           console.log(data)
+  //           location.reload();
+  //         }
+  //       );
+  //     }
+  //   });
+  // }
+
+  // deleteUserFromGroup(group) {
+  //   var matchingUsers = []
+  //   for (let i = 0; i < this.users.length; i++) {
+  //     if (this.users[i].groups) {
+  //       if (this.users[i].groups.find(x => x.groupID === group.groupID) !== undefined) {
+  //         matchingUsers.push(this.users[i])
+  //       }
+  //     }
+  //   }
+  //   //console.log(matchingUsers)
+  //   const deleteUserFromGroupDialogRef = this.dialog.open(DeleteUserFromGroupDialog, {
+  //     height: '400px',
+  //     width: '600px',
+  //     data: {
+  //       users: matchingUsers,
+  //       groupID: group.groupID,
+  //       groupName: group.groupName
+  //     }
+  //   });
+  //   deleteUserFromGroupDialogRef.afterClosed().subscribe(result => {
+  //     console.log(result)
+  //     let index = this.groups.indexOf(group);
+  //     if (result !== undefined) {
+  //       this.http.post(this.deleteUserFromGroupURL, {groupID: this.groups[index].groupID, groupName: this.groups[index].groupName, user: result}, this.httpOptions).subscribe(
+  //         data => {
+  //           console.log(data)
+  //           location.reload();
+  //         }
+  //       );
+  //     }
+  //   });
+  // }
 
   /**
   **********************************
@@ -343,16 +298,12 @@ export class AdminComponent implements OnInit {
       newChannel.channelName = result.channelName;
       newChannel.groupName = result.channelGroup.groupName;
       newChannel.groupID = result.channelGroup.groupID;
+      this.channels.push(newChannel)
       console.log("New Channel is:", newChannel)
       if (result !== undefined) {
         this.http.post(this.saveChannelUrl, JSON.stringify(newChannel), this.httpOptions).subscribe(    
           data => {
-            console.log(data);
-            this.http.get(this.getChannelURL).subscribe(data => {
-              console.log(data['channels'])
-              this.channels = data['channels'];
-              location.reload();
-            });
+            console.log("Added new channel:", data);
           },    
           (err: HttpErrorResponse) => {      
             console.log(err.error);    
@@ -485,6 +436,7 @@ export class GroupDialog {
 // Users Dialog class
 export interface UserDialogData {
   username: string;
+  password: string;
   email: string;
   role: string;
 }
@@ -509,14 +461,15 @@ export class UserDialog {
   constructor(
     public userDialogRef: MatDialogRef<UserDialog>,
     @Inject(MAT_DIALOG_DATA) public data: UserDialogData,
-    private http: HttpClient) {}
+    private http: HttpClient,
+    private userData: UserService) {}
 
   ngOnInit() {
     this.auth = this.readLocalStorageValue('username');
     // Get all users on init load of page
-    this.http.get(this.useUrl).subscribe(data => {
+    this.userData.getUsersList().subscribe(data => {
       if (data !== null) {
-        this.allUsrs = data['users'];
+        this.allUsrs = data;
         // Get current user from all users and add to variable `currentUser`
         for (let i = 0; i < this.allUsrs.length; i++) {
           if (this.allUsrs[i].username === this.auth) {

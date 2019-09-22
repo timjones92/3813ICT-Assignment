@@ -1,16 +1,13 @@
-import { Group, Channel } from './groups';
-
 export class User {
     username: string;
+    password: string;
     email: string;
     role: string;
-    groups: Group[];
-    channels: Channel[];
-    constructor(username:string, email:string, role:string, groups: Group[], channels: Channel[]) {
+    
+    constructor(username:string, password:string, email:string, role:string) {
         this.username = username;
+        this.password = password;
         this.email = email;
         this.role = role;
-        this.groups = groups;
-        this.channels = channels;
     }
 }

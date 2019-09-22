@@ -1,1 +1,1 @@
-{"groups":[{"groupID":0,"groupName":"B-Sharps"}]}
+{"groups":[{"groupID":0,"groupName":"B-Sharps"},{"groupID":2,"groupName":"Losers"},{"groupID":1,"groupName":"Tigers"},{"groupID":3,"groupName":"Unicorns"},{"groupID":4,"groupName":"Sharks"}]}

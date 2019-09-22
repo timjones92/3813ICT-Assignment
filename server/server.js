@@ -7,7 +7,9 @@ var bodyParser = require('body-parser');
 const io = require('socket.io')(http);
 const sockets = require('./socket.js');
 const server = require('./listen.js');
-var fs = require('fs')
+
+const MongoClient = require('mongodb').MongoClient;
+const url = 'mongodb://localhost:27017';
 
 // Using middleware to parse JSON data
 app.use(bodyParser.json());
@@ -32,10 +34,21 @@ app.use(function (req, res, next) {
     next();
 });
 
-// Get services for handling file requests
-require('./routes/groupService.js')(app, fs);
-require('./routes/userService.js')(app, fs);
-require('./routes/channelService.js')(app, fs);
+// Use connect method to connect to the Server
+MongoClient.connect(url, {poolSize:10, useNewUrlParser: true, useUnifiedTopology: true}, function(err, client) {
+    if (err) { return console.log(err)}
+        const dbName = 'chatdb'; // Database name
+        const db = client.db(dbName);
+
+        require('./api/users.js')(db,app, ObjectID);
+        require('./api/groups.js')(db,app, ObjectID);
+        require('./api/channels.js')(db,app, ObjectID);
+});
+
+// // Get services for handling file requests
+// require('./routes/groupService.js')(app, fs);
+// require('./routes/userService.js')(app, fs);
+// require('./routes/channelService.js')(app, fs);
 
 //Setup socket
 sockets.connect(io, PORT);

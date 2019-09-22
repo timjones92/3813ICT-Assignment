@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Group } from '../groups';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 
 
 @Injectable({
@@ -10,19 +10,28 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
 export class GroupsService {
 
-  url = "http://localhost:4200/"
+  url = "http://localhost:3000/"
 
   constructor(private http: HttpClient) { }
 
-  getGroups() {
-    let groups: Group[];
-
-    
-
-    return groups;
-
+  addNewGroup(group: Group) {
+    return this.http.post<any>(this.url + "/api/addGroup", group);
   }
 
-  
+  getGroupsList() {
+    return this.http.get<any>(this.url + "/api/allGroupsList");
+  }
+
+  updateGroups(groups: Group[]) {
+    return this.http.post<any>(this.url + "/api/updateGroups", groups);
+  }
+
+  deleteGroup(groupID) {
+    return this.http.post<any>(this.url + "/api/deleteGroup", {'groupID': groupID});
+  }
+
+  checkValidId(groupID) {
+    return this.http.post<any>(this.url + "/api/checkvalidgroupid", {'groupID': groupID});
+  }
 
 }
