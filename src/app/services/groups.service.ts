@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Group } from '../groups';
+import { User } from '../users';
 import { HttpClient } from '@angular/common/http';
 
 
@@ -34,4 +35,15 @@ export class GroupsService {
     return this.http.post<any>(this.url + "/api/checkvalidgroupid", {'groupID': groupID});
   }
 
+  getGroupUsersList() {
+    return this.http.get<any>(this.url + "/api/allGroupUsersList")
+  }
+  
+  addNewUserToGroup(group: Group, user: User) {
+    return this.http.post<any>(this.url + "/api/addUserToGroup", {'group': group, 'user': user});
+  }
+
+  deleteUserFromGroup(group: Group, user: User) {
+    return this.http.post<any>(this.url + "/api/deleteUserFromGroup", {'group': group, 'user': user});
+  }
 }

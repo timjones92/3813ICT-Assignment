@@ -1,1 +1,0 @@
-{"channels":[{"channelID":0,"channelName":"Bear"},{"groupID":0,"groupName":"B-Sharps","channelID":1,"channelName":"Apu"},{"groupID":0,"groupName":"B-Sharps","channelID":2,"channelName":"Skinner"}]}

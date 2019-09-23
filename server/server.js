@@ -41,18 +41,19 @@ MongoClient.connect(url, {poolSize:10, useNewUrlParser: true, useUnifiedTopology
     if (err) { return console.log(err)}
         const dbName = 'chatdb'; // Database name
         const db = client.db(dbName);
-        const superUser = {
-            username: "Super",
-            password: "super",
-            email: "superadmin@chatapp.com",
-            role: "SuperAdmin",
-            avatar: "../assets/default-avatar.jpg"
-        }
-        db.collection('users').deleteOne(superUser);
-        db.collection('users').insertOne(superUser);
+        // const superUser = {
+        //     username: "Super",
+        //     password: "super",
+        //     email: "superadmin@chatapp.com",
+        //     role: "SuperAdmin",
+        //     avatar: "../assets/default-avatar.jpg"
+        // }
+        // db.collection('users').deleteOne(superUser);
+        // db.collection('users').insertOne(superUser);
         require('./api/users.js')(db,app, ObjectID);
         require('./api/groups.js')(db,app, ObjectID);
         require('./api/channels.js')(db,app, ObjectID);
+        require('./api/usergroups.js')(db, app, ObjectID);
 });
 
 //Setup socket

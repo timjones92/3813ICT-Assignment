@@ -27,7 +27,7 @@ export class UserService {
     return this.http.post<any>(this.url + "/api/deleteUser", user);
   }
 
-  checkValidId(username) {
-    return this.http.post<any>(this.url + "/api/checkvaliduserid", {'username': username});
+  checkValidUser(user) {
+    return this.http.post<any>(this.url + "/api/checkvaliduser", user);
   }
 }

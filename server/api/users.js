@@ -70,18 +70,18 @@ module.exports = function(db, app, ObjectID) {
     });
 
     // Server-side validation if groupID exists
-    app.post('/api/checkvaliduserid', function(req, res) {
+    app.post('/api/checkvaliduser', function(req, res) {
         if (!req.body) {
             return res.sendStatus(400);
         }
         user = req.body;
         const collection = db.collection('users');
         // Check for duplicate id's
-        collection.find({'username':user.username}).count((err, count) => {
+        collection.find({'username':user.username, 'password':user.password}).count((err, count) => {
             if (count == 0) {
-                res.send({success:1});
+                res.send({success: 0})
             } else {
-                res.send({success:0});
+                res.send({success: 1})
             }
         });
     });
