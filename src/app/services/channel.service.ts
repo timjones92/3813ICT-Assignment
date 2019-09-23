@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Channel } from '../groups';
+import { Channel, Group } from '../groups';
+import { User } from '../users';
 import { HttpClient } from '@angular/common/http';
 
 @Injectable({
@@ -27,4 +28,15 @@ export class ChannelService {
     return this.http.post<any>(this.url + "/api/deleteChannel", channel);
   }
 
+  getChannelUsersList() {
+    return this.http.get<any>(this.url + "/api/allChannelUsersList")
+  }
+  
+  addNewUserToChannel(channel: Channel, group: Group, user: User) {
+    return this.http.post<any>(this.url + "/api/addUserToChannel", {'channel': channel, 'group': group, 'user': user});
+  }
+
+  deleteUserFromChannel(channel: Channel, group: Group, user: User) {
+    return this.http.post<any>(this.url + "/api/deleteUserFromChannel", {'channel': channel, 'group': group, 'user': user});
+  }
 }

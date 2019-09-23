@@ -131,10 +131,8 @@
                                                 
                                                 <div class="col-md-5">
                                                     <select class="form-control">
-                                                        <ng-container *ngFor="let user of users">
-                                                            <ng-container *ngFor="let ch of user.channels">
-                                                                <option *ngIf="channel.channelID === ch.channelID" [value]="user.username" id="channelUser">{{user.username}}</option>
-                                                            </ng-container>
+                                                        <ng-container *ngFor="let uc of userChannels">
+                                                            <option *ngIf="channel.channelID === uc.channel" [value]="uc.user" id="channelUser">{{uc.user}}</option>
                                                         </ng-container>
                                                     </select>
                                                 </div>

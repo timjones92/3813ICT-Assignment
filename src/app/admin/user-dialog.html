@@ -1,21 +1,22 @@
 <div mat-dialog-content class="h-100">
     <h3>Add a New User</h3>
-    <mat-form-field>
+    <mat-form-field class="w-100">
         <mat-label>Type in new user's username</mat-label>
-        <input matInput [(ngModel)]="data.username" placeholder="Enter username">
+        <input matInput [(ngModel)]="data.username" placeholder="Enter username" (ngModelChange)="onKey($event)" required>
+        <p *ngIf="invalidUser" class="text-danger" style="font-size: 14px">{{usernameErrorMsg}}</p>
     </mat-form-field>
     <br>
-    <mat-form-field>
-        <mat-label>User password defaults to password</mat-label>
+    <mat-form-field class="w-100">
+        <mat-label>User password defaults to 'password'</mat-label>
         <input matInput type="password" [(ngModel)]="data.password" placeholder="password" readonly>
     </mat-form-field>
     <br>
-    <mat-form-field>
+    <mat-form-field class="w-100">
         <mat-label>Type in new user's email address</mat-label>
-        <input matInput [(ngModel)]="data.email" placeholder="Enter email address">
+        <input matInput [(ngModel)]="data.email" placeholder="Enter email address" required>
     </mat-form-field>
     <br>
-    <mat-form-field>
+    <mat-form-field class="w-100">
         <mat-label>Select a role for user</mat-label>
         <mat-select [(value)]="data.role">
             <mat-option *ngIf="currentUsr.role === 'SuperAdmin'" value="SuperAdmin">SuperAdmin</mat-option>
@@ -25,6 +26,6 @@
     </mat-form-field>
     <div mat-dialog-actions>
         <button mat-button class="btn btn-danger" (click)="onCancelClick()">Cancel</button>
-        <button mat-button [mat-dialog-close]="data" class="btn btn-success" cdkFocusInitial>Done</button>
+        <button *ngIf="!invalidUser" mat-button [mat-dialog-close]="data" class="btn btn-success" cdkFocusInitial>Done</button>
     </div>
 </div>

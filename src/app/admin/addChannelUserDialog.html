@@ -4,9 +4,9 @@
         <mat-label>Select a user</mat-label>
         <mat-select [(ngModel)]="selectedUser" name="user">
             <mat-option 
-            *ngFor="let user of validUsers" 
-            [value]="user.username">
-            {{user.username}}
+            *ngFor="let user of data.users" 
+            [value]="user">
+            {{user}}
             </mat-option>
         </mat-select>
     </mat-form-field>

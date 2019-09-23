@@ -2,11 +2,10 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { Group, Channel } from '../groups';
 import { User } from '../users';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import { GroupsService } from '../services/groups.service';
 import { UserService } from '../services/user.service';
 import { ChannelService } from '../services/channel.service';
-import { invalid } from '@angular/compiler/src/render3/view/util';
 
 
 @Component({
@@ -20,7 +19,8 @@ export class AdminComponent implements OnInit {
   groups: Group[] = [];
   users: User[] = [];
   channels: Channel[] = [];
-  userGroups = []
+  userGroups = [];
+  userChannels = [];
   currentUser = {username: "", email: "", role: "", avatar: ""};
   currentUserGroups = [];
   groupAssis = {groupID: 0, groupName: "", username: ""};
@@ -28,13 +28,6 @@ export class AdminComponent implements OnInit {
 
   authenticated: string;
   admin: string;
-
-  httpOptions = {
-    headers: new HttpHeaders({
-      'Content-Type':  'application/json',
-    })
-  };
-
   
   // Check if current user function
   readLocalStorageValue(key) {
@@ -81,6 +74,7 @@ export class AdminComponent implements OnInit {
     this.channelData.getChannelsList().subscribe(data => {
       if (data !== null) {
         this.channels = data;
+        console.log('All current channels are:', this.channels)
       }
     });
     
@@ -91,6 +85,14 @@ export class AdminComponent implements OnInit {
       if (data !== null) {
         this.userGroups = data;
         console.log("Current group users are:", this.userGroups)
+      }
+    });
+
+    // Get all channel users
+    this.channelData.getChannelUsersList().subscribe(data => {
+      if (data !== null) {
+        this.userChannels = data;
+        console.log("Current channel users are:", this.userChannels);
       }
     });
     
@@ -156,65 +158,6 @@ export class AdminComponent implements OnInit {
     }
   }
 
-  addGroupAssis() {
-    this.groupAssis
-  }
-
-  /**
-  *******************************
-  ***** USERS DATA HANDLING *****
-  *******************************
-  */
-  addNewUser() {
-    let newUser = new User("", "password", "", "", "");
-    
-    const userDialogRef = this.dialog.open(UserDialog, {
-      height: '400px',
-      width: '600px',
-      data: {
-        username: newUser.username,
-        password: newUser.password,
-        email: newUser.email,
-        role: newUser.role
-      }
-    });
-    
-    userDialogRef.afterClosed().subscribe(result => {
-      newUser = result;
-      if (result !== undefined) {
-        newUser.avatar = '../assets/default-avatar.jpg';
-        this.users.push(newUser);
-        // Send user to server to add to db
-        this.userData.addNewUser(newUser).subscribe(    
-          data => {
-            console.log("Added new user:", data);
-          },    
-          (err: HttpErrorResponse) => {      
-            console.log(err.error);    
-        });
-      }
-    });
-    
-  }
-
-  updateUsers() {
-    this.userData.updateUsers(this.users).subscribe(
-      data => {
-        alert("Updated all users");
-        console.log(data)
-      }
-    );
-    
-  }
-
-  deleteUser(user) {
-    if (confirm("Are you sure you want to delete " + user.username + "?")) {
-      this.userData.deleteUser(user).subscribe(data => {
-        this.users = data;
-      });
-    }
-  }
-
   addUserToGroup(group) {
     let invalidGroupUsers = [];
     let validGroupUsers = [];
@@ -276,11 +219,67 @@ export class AdminComponent implements OnInit {
         let user = result;
         this.groupsData.deleteUserFromGroup(group, user).subscribe(
           data => {
-            this.userGroups = data;
+            this.userGroups = data.ugdata;
+            this.userChannels = data.ucdata;
           }
         );
       }
     });
+  }
+
+  /**
+  *******************************
+  ***** USERS DATA HANDLING *****
+  *******************************
+  */
+  addNewUser() {
+    let newUser = new User("", "password", "", "", "");
+    
+    const userDialogRef = this.dialog.open(UserDialog, {
+      height: '400px',
+      width: '600px',
+      data: {
+        username: newUser.username,
+        password: newUser.password,
+        email: newUser.email,
+        role: newUser.role
+      }
+    });
+    
+    userDialogRef.afterClosed().subscribe(result => {
+      newUser = result;
+      if (result !== undefined) {
+        newUser.avatar = '../assets/default-avatar.jpg';
+        this.users.push(newUser);
+        // Send user to server to add to db
+        this.userData.addNewUser(newUser).subscribe(    
+          data => {
+            console.log("Added new user:", data);
+          },    
+          (err: HttpErrorResponse) => {      
+            console.log(err.error);    
+        });
+      }
+    });
+    
+  }
+
+  updateUsers() {
+    this.userData.updateUsers(this.users).subscribe(
+      data => {
+        alert("Updated all users");
+        console.log(data)
+      }
+    );
+    
+  }
+
+  deleteUser(user) {
+    if (confirm("Are you sure you want to delete " + user.username + "?")) {
+      this.userData.deleteUser(user).subscribe(data => {
+        this.users = data;
+      });
+    }
   }
 
   /**
@@ -343,78 +342,82 @@ export class AdminComponent implements OnInit {
     }
   }
 
-  // addUserToChannel(channel) {
-    
-  //   const addChannelUserDialogRef = this.dialog.open(AddChannelUserDialog, {
-  //     height: '400px',
-  //     width: '600px',
-  //     data: {
-  //       users: this.users,
-  //       channelName: channel.channelName
-  //     }
-  //   });
-  //   addChannelUserDialogRef.afterClosed().subscribe(result => {
-  //     console.log(result);
-  //     let index = this.channels.indexOf(channel);
-  //     if (result !== undefined) {
-  //       this.http.post(this.addUserToChannelURL, {
-  //         groupID: this.channels[index].groupID, 
-  //         groupName: this.channels[index].groupName, 
-  //         channelID: this.channels[index].channelID,
-  //         channelName: this.channels[index].channelName,
-  //         user: result
-  //       }, this.httpOptions).subscribe(
-  //         data => {
-  //           console.log(data)
-  //           location.reload();
-  //         }
-  //       );
-  //     }
-  //   });
-  // }
+  addUserToChannel(channel) {
+    let invalidChannelUsers = [];
+    let validChannelUsers = [];
+    // Get all channel users that are in selected channel
+    for (let i = 0; i < this.userChannels.length; i++) {
+      if (this.userChannels[i].channel === channel.channelID) {
+        invalidChannelUsers.push(this.userChannels[i].user);
+      }
+    }
 
-  // deleteUserFromChannel(channel) {
-  //   var matchingUsers = []
-  //   for (let i = 0; i < this.users.length; i++) {
-  //     if (this.users[i].channels) {
-  //       if (this.users[i].channels.find(x => x.channelID === channel.channelID) !== undefined) {
-  //         matchingUsers.push(this.users[i])
-  //       }
-  //     }
-      
-  //   }
-  //   //console.log(matchingUsers)
-  //   const deleteUserFromChannelDialogRef = this.dialog.open(DeleteUserFromChannelDialog, {
-  //     height: '400px',
-  //     width: '600px',
-  //     data: {
-  //       users: matchingUsers,
-  //       channelID: channel.groupID,
-  //       channelName: channel.groupName
-  //     }
-  //   });
-  //   deleteUserFromChannelDialogRef.afterClosed().subscribe(result => {
-  //     console.log(result)
-  //     let index = this.channels.indexOf(channel);
-  //     if (result !== undefined) {
-  //       this.http.post(this.deleteUserFromChannelURL, 
-  //         {
-  //           channelID: this.channels[index].channelID, 
-  //           channelName: this.channels[index].channelName, 
-  //           user: result
-  //         }, this.httpOptions).subscribe(
-  //         data => {
-  //           console.log(data)
-  //           location.reload();
-  //         }
-  //       );
-  //     }
-  //   });
-  // }
+    // Filter out users if they are not currently in the group
+    for (let i = 0; i < this.userGroups.length; i++) {
+      if (this.userGroups[i].group === channel.groupID) {
+        if (!invalidChannelUsers.includes(this.userGroups[i].user)) {
+          validChannelUsers.push(this.userGroups[i].user)
+        }
+      }
+    }
+
+    const addChannelUserDialogRef = this.dialog.open(AddChannelUserDialog, {
+      height: '400px',
+      width: '600px',
+      data: {
+        users: validChannelUsers,
+        channelName: channel.channelName
+      }
+    });
+    addChannelUserDialogRef.afterClosed().subscribe(result => {
+      if (result !== undefined) {
+        //console.log(result);
+        let user = result;
+        let group = channel.groupID;
+        this.channelData.addNewUserToChannel(channel, group, user).subscribe(
+          data => {
+            this.userChannels = data;
+          }
+        );
+      }
+    });
+  }
+
+  deleteUserFromChannel(channel) {
+    let validChannelUsers = [];
+    // Get all channel users that are in selected channel
+    for (let i = 0; i < this.userChannels.length; i++) {
+      if(this.userChannels[i].channel === channel.channelID) {
+        validChannelUsers.push(this.userChannels[i].user);
+      }
+    }
+    
+    const deleteUserFromChannelDialogRef = this.dialog.open(DeleteUserFromChannelDialog, {
+      height: '400px',
+      width: '600px',
+      data: {
+        users: validChannelUsers,
+        channelName: channel.channelName
+      }
+    });
+    deleteUserFromChannelDialogRef.afterClosed().subscribe(result => {
+      if (result !== undefined) {
+        let user = result;
+        let group = channel.groupID;
+        this.channelData.deleteUserFromChannel(channel, group, user).subscribe(
+          data => {
+            this.userChannels = data;
+          }
+        );
+      }
+    });
+  }
 
 }
 
-// Groups Dialog class
+// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+// Add New Group Dialog class \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 export interface DialogData {
   groupName: string;
 }
@@ -435,8 +438,9 @@ export class GroupDialog {
   }
 
 }
-
-// Users Dialog class
+// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+// Add New User Dialog class \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 export interface UserDialogData {
   username: string;
   password: string;
@@ -454,6 +458,8 @@ export class UserDialog {
   allUsrs: User[] = [];
   currentUsr: User = new User("", "", "", "GroupAdmin", "");
   auth: string;
+  invalidUser: string;
+  usernameErrorMsg: string = "";
 
   // Check if current user function
   readLocalStorageValue(key) {
@@ -478,14 +484,28 @@ export class UserDialog {
           }
         }
       }
+      
     });
+
   }
+
+  onKey(event) {
+    if (this.allUsrs.find(x => x.username === event)) {
+      this.invalidUser = event;
+      this.usernameErrorMsg = "Username already exists. Please choose a different username."
+    } else {
+      this.invalidUser = "";
+    }
+  }
+
   onCancelClick(): void {
     this.userDialogRef.close();
   }
 }
 
-// AddGroupUser Dialog class
+// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+// AddGroupUser Dialog class \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 export interface AddGroupUserDialogData {
   users: [Object];
   groupName: string;
@@ -507,7 +527,9 @@ export class AddGroupUserDialog {
   }
 }
 
-// DeleteUserFromGroup Dialog class
+// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+// DeleteUserFromGroup Dialog class \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 export interface DeleteUserFromGroupDialogData {
   users: [Object];
   groupName: string;
@@ -528,8 +550,9 @@ export class DeleteUserFromGroupDialog {
     this.deleteUserFromGroupDialogRef.close();
   }
 }
-
-// Channels Dialog class
+// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+// Add New Channel Dialog class \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 export interface AddChannelDialogData {
   groups: [Object];
   channelGroup: Object;
@@ -552,7 +575,9 @@ export class AddChannelDialog {
   }
 }
 
-// AddChannelUser Dialog class
+// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+// AddChannelUser Dialog class \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 export interface AddChannelUserDialogData {
   users: [Object];
   channelName: string;
@@ -565,39 +590,12 @@ export interface AddChannelUserDialogData {
 
 export class AddChannelUserDialog {
 
-  useUrl = "http://localhost:3000/api/getAllUsers/";
-  groupUrl = "http://localhost:3000/api/getAllGroups/";
-  allUsrs = [];
-  allGrps = [];
-  validUsers = [];
-
   constructor(
     public addChannelUserDialogRef: MatDialogRef<AddChannelUserDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: AddChannelUserDialogData, 
-    private http: HttpClient) {}
+    @Inject(MAT_DIALOG_DATA) public data: AddChannelUserDialogData) {}
     
   ngOnInit() {
-    // Get all users on init load of page
-    this.http.get(this.useUrl).subscribe(data => {
-      if (data !== null) {
-        this.allUsrs = data['users'];
-        this.http.get(this.groupUrl).subscribe(groups => {
-          if (groups !== null) {
-            this.allGrps = groups['groups'];
-            // Get current user from all users and add to variable `currentUser`
-            for (let i = 0; i < this.allUsrs.length; i++) {
-              for (let g = 0; g < this.allGrps.length; g++) {
-                if (this.allUsrs[i].groups.find(x => x.groupID === this.allGrps[g].groupID)) {
-                  this.validUsers.push(this.allUsrs[i]);
-                }
-              }
-              
-            }
-          }
-        });
-          
-      }
-    });
+
   }
 
   onCancelClick(): void {
@@ -605,7 +603,9 @@ export class AddChannelUserDialog {
   }
 }
 
-// DeleteUserFromChannel Dialog class
+// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+// DeleteUserFromChannel Dialog class \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 export interface DeleteUserFromChannelDialogData {
   users: [Object];
   channelName: string;

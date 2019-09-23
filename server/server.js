@@ -29,13 +29,6 @@ const PORT = 3000;
 //Apply express middleware
 app.use(cors());
 
-// app.use(function (req, res, next) {
-//     res.header("Access-Control-Allow-Origin", "http://localhost:4200");
-//     res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, PATCH, DELETE");
-//     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-//     next();
-// });
-
 // Use connect method to connect to the Server
 MongoClient.connect(url, {poolSize:10, useNewUrlParser: true, useUnifiedTopology: true}, function(err, client) {
     if (err) { return console.log(err)}
@@ -50,10 +43,12 @@ MongoClient.connect(url, {poolSize:10, useNewUrlParser: true, useUnifiedTopology
         // }
         // db.collection('users').deleteOne(superUser);
         // db.collection('users').insertOne(superUser);
+        //db.collection('userchannels').deleteOne({user: "Super"});
         require('./api/users.js')(db,app, ObjectID);
         require('./api/groups.js')(db,app, ObjectID);
         require('./api/channels.js')(db,app, ObjectID);
-        require('./api/usergroups.js')(db, app, ObjectID);
+        require('./api/usergroups.js')(db, app);
+        require('./api/userchannels.js')(db, app);
 });
 
 //Setup socket
