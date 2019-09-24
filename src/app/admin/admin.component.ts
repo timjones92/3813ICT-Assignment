@@ -124,11 +124,10 @@ export class AdminComponent implements OnInit {
       newGroup.groupName = result;
       
       if (result !== undefined) {
-        this.groups.push(newGroup);
         // Send new group to server to add to db
         this.groupsData.addNewGroup(newGroup).subscribe((data) => {
           if (data.err == null) {
-            alert(data.num + " new group (" + newGroup.groupName + ") was added.");
+            this.groups = data;
           } else {
             alert(data.err);
           }
@@ -150,10 +149,15 @@ export class AdminComponent implements OnInit {
   }
 
   deleteGroup(group) {
+    console.log('Group to be deleted:', group)
     if (confirm("Are you sure you want to delete this group?" +
     "\nWARNING: This will cause all channels in the group to be deleted.")) {
       this.groupsData.deleteGroup(group).subscribe(data => {
-        this.groups = data;
+        console.log("Returned delete group data:", data);
+        this.groups = data.gdata;
+        this.channels = data.cdata;
+        this.userGroups = data.ugdata;
+        this.userChannels = data.ucdata;
       });
     }
   }
@@ -333,7 +337,8 @@ export class AdminComponent implements OnInit {
   }
 
   deleteChannel(channel) {
-    if (confirm("Are you sure you want to delete the " + channel.channelName + " channel?")) {
+    if (confirm("Are you sure you want to delete the " + channel.channelName + " channel?"
+    + "\nWARNING: All channel users will be deleted from channel.")) {
       this.channelData.deleteChannel(channel).subscribe(
         data => {
           this.channels = data;

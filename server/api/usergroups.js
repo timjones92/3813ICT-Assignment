@@ -40,7 +40,7 @@ module.exports = function(db, app, ObjectID) {
             userChannelCol.deleteMany({group:group.groupID, user: user});
             // Get a new listing of all items in the database and return to client
             userGroupCol.find({}).toArray((err, ugdata) => {
-                userChannelCol.find({}).toArray((ucdata) => {
+                userChannelCol.find({}).toArray((err, ucdata) => {
                     // Return a response to the client to let them know the delete was successful
                     res.send({'ugdata':ugdata, 'ucdata':ucdata});
                 })

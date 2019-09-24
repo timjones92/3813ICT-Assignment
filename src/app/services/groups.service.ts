@@ -47,7 +47,4 @@ export class GroupsService {
     return this.http.post<any>(this.url + "/api/deleteUserFromGroup", {'group': group, 'user': user});
   }
 
-  destroyGroup(channel: Channel[], group: Group, user: User[]) {
-    return this.http.post<any>(this.url + '/api/destroyGroupChannels', {'channel': channel, 'group': group, 'user': user});
-  }
 }

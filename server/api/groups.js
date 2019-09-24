@@ -12,10 +12,12 @@ module.exports = function(db, app, ObjectID) {
                 //if no duplicate
                 collection.insertOne(group, (err, dbres) => {
                     if (err) throw err;
-                    let num = dbres.insertedCount;
-                    //send back to client number of items inserted and no error message
-                    res.send({'num':num, err:null});
-                })
+                    collection.find({}).toArray((err, data) => {
+                        //send back to client all groups which now includes new group added
+                        res.send(data);
+                    });
+                    
+                });
             } else {
                 // On error, send back error message
                 res.send({num:0, err:"duplicate item"});
@@ -56,13 +58,34 @@ module.exports = function(db, app, ObjectID) {
         group = req.body;
         // Create a new mongo Object ID from the passed in _id
         var objectid = new ObjectID(group._id);
-        const collection = db.collection('groups');
+        const groupCollection = db.collection('groups');
+        const channelsCollection = db.collection('channels');
+        const userGroupsCollection = db.collection('usergroups');
+        const userChannelsCollection = db.collection('userchannels');
+
+        // Delete all the selected group's channels
+        channelsCollection.deleteMany({groupID: group.groupID});
+        // Delete all the selected group's users
+        userGroupsCollection.deleteMany({group: group.groupID});
+        // Delete all the selected group's channel users
+        userChannelsCollection.deleteMany({group: group.groupID});
         // Delete a single product based on unique ID
-        collection.deleteOne({_id:objectid}, (err, docs) => {
-            // Get a new listing of all items in the database and return to client
-            collection.find({}).toArray((err, data) => {
-                // Return a response to the client to let them know the delete was successful
-                res.send(data);
+        groupCollection.deleteOne({_id:objectid}, (err, docs) => {
+            if (err) {
+                console.log("Deleting group error: " + err)
+            }
+        });
+
+        // Get a new listing of all items in the database and return to client
+        
+        channelsCollection.find({}).toArray((err, cdata) => {
+            userGroupsCollection.find({}).toArray((err, ugdata) => {
+                userChannelsCollection.find({}).toArray((err, ucdata) => {
+                    groupCollection.find({}).toArray((err, gdata) => {
+                        // Return a response to the client to let them know the delete was successful
+                        res.send({'gdata': gdata, 'cdata': cdata, 'ugdata': ugdata, 'ucdata': ucdata});
+                    });
+                });
             });
         });
     });

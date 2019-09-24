@@ -56,11 +56,13 @@ module.exports = function(db, app, ObjectID) {
         channel = req.body;
         // Create a new mongo Object ID from the passed in _id
         var objectid = new ObjectID(channel._id);
-        const collection = db.collection('channels');
+        const channelCollection = db.collection('channels');
+        const userChannelCollection = db.collection('userchannels');
         // Delete a single product based on unique ID
-        collection.deleteOne({_id:objectid}, (err, docs) => {
+        channelCollection.deleteOne({_id:objectid}, (err, docs) => {
+            userChannelCollection.deleteMany({channel: channel.channelID});
             // Get a new listing of all items in the database and return to client
-            collection.find({}).toArray((err, data) => {
+            channelCollection.find({}).toArray((err, data) => {
                 // Return a response to the client to let them know the delete was successful
                 res.send(data);
             });
