@@ -8,10 +8,10 @@ module.exports = function(db, app, ObjectID) {
         user = req.body.user;
         const collection = db.collection('usergroups');
         // Check for duplicate id's
-        collection.find({'groupID': group.groupID, 'username':user}).count((err, count) => {
+        collection.find({'groupID': group.groupID, 'userID': user._id}).count((err, count) => {
             if (count == 0) {
                 //if no duplicate
-                collection.insertOne({group: group.groupID, user: user}, (err, dbres) => {
+                collection.insertOne({groupID: group.groupID, groupName: group.groupName, userID: user._id, username: user.username}, (err, dbres) => {
                     if (err) throw err;
                     //send back to client number of items inserted and no error message
                     collection.find({}).toArray((err, data) => {
@@ -36,15 +36,15 @@ module.exports = function(db, app, ObjectID) {
         const userGroupCol = db.collection('usergroups');
         const userChannelCol = db.collection('userchannels');
         // Delete a single product based on unique ID
-        userGroupCol.deleteOne({group:group.groupID, user: user}, (err, docs) => {
-            userChannelCol.deleteMany({group:group.groupID, user: user});
-            // Get a new listing of all items in the database and return to client
+        userGroupCol.deleteOne({groupID:group.groupID, userID: user.userID}, (err, docs) => {
+
+        });
+        userChannelCol.deleteMany({groupID:group.groupID, userID: user.userID});
+        // Get a new listing of all items in the database and return to client
+        userChannelCol.find({}).toArray((err, ucdata) => {
             userGroupCol.find({}).toArray((err, ugdata) => {
-                userChannelCol.find({}).toArray((err, ucdata) => {
-                    // Return a response to the client to let them know the delete was successful
-                    res.send({'ugdata':ugdata, 'ucdata':ucdata});
-                })
-                
+                // Return a response to the client to let them know the delete was successful
+                res.send({'ugdata':ugdata, 'ucdata':ucdata});
             });
         });
     });

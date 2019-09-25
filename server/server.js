@@ -43,7 +43,7 @@ MongoClient.connect(url, {poolSize:10, useNewUrlParser: true, useUnifiedTopology
         // }
         // db.collection('users').deleteOne(superUser);
         // db.collection('users').insertOne(superUser);
-        //db.collection('userchannels').deleteOne({user: "Super"});
+        // db.collection('userchannels').deleteOne({channel: 0});
         require('./api/users.js')(db,app, ObjectID);
         require('./api/groups.js')(db,app, ObjectID);
         require('./api/channels.js')(db,app, ObjectID);

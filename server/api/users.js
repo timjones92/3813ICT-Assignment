@@ -12,10 +12,11 @@ module.exports = function(db, app, ObjectID) {
                 //if no duplicate
                 collection.insertOne(user, (err, dbres) => {
                     if (err) throw err;
-                    let num = dbres.insertedCount;
-                    //send back to client number of items inserted and no error message
-                    res.send({'num':num, err:null});
-                })
+                    collection.find({}).toArray((err, data) => {
+                        //send back to client all users including newly added user
+                        res.send(data);
+                    });
+                });
             } else {
                 // On error, send back error message
                 res.send({num:0, err:"duplicate item"});
@@ -37,15 +38,32 @@ module.exports = function(db, app, ObjectID) {
             return res.sendStatus(400);
         }
         users = req.body;
-        const collection = db.collection('users');
+        const userCollection = db.collection('users');
+        const userGroupsCollection = db.collection('usergroups');
+        const userChannelsCollection = db.collection('userchannels');
+
         for (let i = 0; i < users.length; i++) {
+            // Create a new mongo Object ID from the passed in _id
             var objectid = new ObjectID(users[i]._id);
-            collection.updateOne({_id:objectid}, {$set:{username:users[i].username, password:users[i].password, email:users[i].email, role:users[i].role, avatar:users[i].avatar}}, () => {
+            // Update username in user groups
+            userGroupsCollection.updateMany({userID: users[i]._id}, {$set:{username: users[i].username}});
+            // Update username in user channels
+            userChannelsCollection.updateMany({userID: users[i]._id}, {$set:{username: users[i].username}});
+            // For each user, update with their new values
+            userCollection.updateOne({_id:objectid}, {$set:{username:users[i].username, password:users[i].password, email:users[i].email, role:users[i].role, avatar:users[i].avatar}}, () => {
                 
-            })
+            });
         }
-        // Return a response to the client to let them know the update was successful
-        res.send({'ok': users});
+        
+        userChannelsCollection.find({}).toArray((err, ucdata) => {
+            userGroupsCollection.find({}).toArray((err, ugdata) => {
+                userCollection.find({}).toArray((err, udata) => {
+                    // Return a response to the client with all updated username values
+                    res.send({'udata': udata, 'ugdata': ugdata, 'ucdata': ucdata});
+                });
+            });
+        });
+        
         
         
     });
@@ -58,13 +76,26 @@ module.exports = function(db, app, ObjectID) {
         user = req.body;
         // Create a new mongo Object ID from the passed in _id
         var objectid = new ObjectID(user._id);
-        const collection = db.collection('users');
+        const userCollection = db.collection('users');
+        const userGroupsCollection = db.collection('usergroups');
+        const userChannelsCollection = db.collection('userchannels');
+        
+        // Delete selected user from all their groups
+        userGroupsCollection.deleteMany({user: user.username});
+        // Delete selected user from all their channels
+        userChannelsCollection.deleteMany({user: user.username});
         // Delete a single product based on unique ID
-        collection.deleteOne({_id:objectid}, (err, docs) => {
-            // Get a new listing of all items in the database and return to client
-            collection.find({}).toArray((err, data) => {
-                // Return a response to the client to let them know the delete was successful
-                res.send(data);
+        userCollection.deleteOne({_id:objectid}, (err, docs) => {
+            if (err) throw err;
+        });
+
+        // Get a new listing of all items in the database and return to client
+        userChannelsCollection.find({}).toArray((err, ucdata) => {
+            userGroupsCollection.find({}).toArray((err, ugdata) => {
+                userCollection.find({}).toArray((err, udata) => {
+                    // Return a response to the client to let them know the delete was successful
+                    res.send({'udata':udata, 'ugdata':ugdata, 'ucdata':ucdata});
+                });
             });
         });
     });

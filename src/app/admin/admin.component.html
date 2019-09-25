@@ -82,7 +82,7 @@
                             <div class="col-md-5 mb-3">
                                 <select class="form-control">
                                     <ng-container *ngFor="let ug of userGroups">
-                                        <option *ngIf="group.groupID === ug.group" [value]="ug.user" id="groupUser">{{ug.user}}</option>
+                                        <option *ngIf="group.groupID === ug.groupID" [value]="ug.username" id="groupUser">{{ug.username}}</option>
                                     </ng-container>
                                 </select>
                             </div>
@@ -132,7 +132,7 @@
                                                 <div class="col-md-5">
                                                     <select class="form-control">
                                                         <ng-container *ngFor="let uc of userChannels">
-                                                            <option *ngIf="channel.channelID === uc.channel" [value]="uc.user" id="channelUser">{{uc.user}}</option>
+                                                            <option *ngIf="channel.channelID === uc.channelID" [value]="uc.username" id="channelUser">{{uc.username}}</option>
                                                         </ng-container>
                                                     </select>
                                                 </div>

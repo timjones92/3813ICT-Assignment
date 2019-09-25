@@ -9,10 +9,10 @@ module.exports = function(db, app, ObjectID) {
         channel = req.body.channel;
         const collection = db.collection('userchannels');
         // Check for duplicate id's
-        collection.find({'channel': channel.channelID, 'group': group, 'username':user}).count((err, count) => {
+        collection.find({'channelID': channel.channelID, 'groupID': group.groupID, 'userID': user.userID}).count((err, count) => {
             if (count == 0) {
                 //if no duplicate
-                collection.insertOne({channel: channel.channelID, group: group, user: user}, (err, dbres) => {
+                collection.insertOne({'channelID': channel.channelID, 'channelName': channel.channelName, 'groupID': group.groupID, 'groupName': group.groupName, 'userID': user.userID, 'username':user.username}, (err, dbres) => {
                     if (err) throw err;
                     //send back to client number of items inserted and no error message
                     collection.find({}).toArray((err, data) => {
@@ -36,7 +36,7 @@ module.exports = function(db, app, ObjectID) {
         channel = req.body.channel;
         const collection = db.collection('userchannels');
         // Delete a single product based on unique ID
-        collection.deleteOne({channel:channel.channelID, group:group, user: user}, (err, docs) => {
+        collection.deleteOne({channelID:channel.channelID, groupID:group, userID: user.userID}, (err, docs) => {
             // Get a new listing of all items in the database and return to client
             collection.find({}).toArray((err, data) => {
                 // Return a response to the client to let them know the delete was successful

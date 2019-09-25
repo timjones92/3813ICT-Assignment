@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Component, OnInit} from '@angular/core';
 import { UserService } from '../services/user.service';
+import { GroupsService } from '../services/groups.service';
+import { ChannelService } from '../services/channel.service';
+
 
 @Component({
   selector: 'app-group',
@@ -11,7 +13,16 @@ export class GroupComponent implements OnInit {
 
   localUsername = "";
   users = [];
-  currentUser = {};
+  userGroups = [];
+  userChannels = [];
+  currentUser = {
+    '_id': "",
+    'username': "",
+    'password': "",
+    'email': "",
+    'role': ""
+  };
+  
   authenticated: string;
   role: string;
   
@@ -20,7 +31,7 @@ export class GroupComponent implements OnInit {
     return localStorage.getItem(key);
   }
 
-  constructor(private http: HttpClient, private userData: UserService) { }
+  constructor(private userData: UserService, private groupData: GroupsService, private channelData: ChannelService) { }
 
   ngOnInit() {
     this.authenticated = this.readLocalStorageValue('username');
@@ -28,7 +39,17 @@ export class GroupComponent implements OnInit {
     if (typeof(Storage) !== "undefined"){
       this.localUsername = localStorage.getItem("username");
     }
-    
+
+    // Get all group users
+    this.groupData.getGroupUsersList().subscribe(data => {
+      this.userGroups = data;
+    });
+
+    // Get all channel users
+    this.channelData.getChannelUsersList().subscribe(data => {
+      this.userChannels = data;
+    });
+
     // Get all users on init load of page
     this.userData.getUsersList().subscribe(data => {
       if (data !== null) {
@@ -36,7 +57,7 @@ export class GroupComponent implements OnInit {
         // Get current user from all users and add to variable `currentUser`
         for (let i = 0; i < this.users.length; i++) {
           if (this.users[i].username === this.localUsername) {
-            this.currentUser = this.users[i]
+            this.currentUser = this.users[i];
           }
         }
         console.log("Current User:", this.currentUser);
@@ -44,4 +65,5 @@ export class GroupComponent implements OnInit {
     });
   }
 
+  
 }

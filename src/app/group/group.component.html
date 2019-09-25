@@ -1,10 +1,12 @@
 <div *ngIf="authenticated !== null" class="container group-bg p-2">
-    <h3 class="text-white">Hi {{currentUser.username}}</h3>
+    <h3 class="text-white text-center">Hi {{currentUser.username}}</h3>
+    <img src={{currentUser.avatar}} class="mx-auto d-block" alt="User avatar" height="150px">
+    <br>
     <p class="text-white">Here are your current Groups and Channels.</p>
-    <ul *ngFor="let group of currentUser.groups" class="text-white">
-        <li>GROUP: {{group.groupName}}</li>
-        <ul *ngFor="let channel of currentUser.channels">
-            <li *ngIf="channel.groupID == group.groupID">
+    <ul *ngFor="let group of userGroups" class="text-white">
+        <li *ngIf="group.userID === currentUser._id">GROUP: {{group.groupName}}</li>
+        <ul *ngFor="let channel of userChannels">
+            <li *ngIf="channel.userID === currentUser._id && channel.groupID === group.groupID && channel.userID === group.userID">
                 CHANNEL: <a [routerLink]="['/channels',channel.channelID]">{{channel.channelName}}</a>
             </li>
         </ul>

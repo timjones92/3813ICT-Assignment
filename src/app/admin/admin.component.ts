@@ -6,6 +6,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { GroupsService } from '../services/groups.service';
 import { UserService } from '../services/user.service';
 import { ChannelService } from '../services/channel.service';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -38,7 +39,8 @@ export class AdminComponent implements OnInit {
     public dialog: MatDialog,
     private groupsData: GroupsService,
     private userData: UserService,
-    private channelData: ChannelService
+    private channelData: ChannelService,
+    private router: Router
     ) { }
 
   ngOnInit() {
@@ -60,13 +62,6 @@ export class AdminComponent implements OnInit {
             this.currentUser = this.users[i]
           }
         }
-        // for (let g = 0; g < this.groups.length; g++) {
-        //   if (this.currentUser.groups.find(x=> x.groupID === this.groups[g].groupID) !== undefined) {
-        //     this.currentUserGroups.push(this.currentUser.groups.find(x=> x.groupID === this.groups[g].groupID))
-        //   } else {
-        //     this.currentUserGroups.push({groupID: -1, groupName: ""})
-        //   }
-        // }
       }
     });
 
@@ -167,14 +162,14 @@ export class AdminComponent implements OnInit {
     let validGroupUsers = [];
     // Get all group users that are in selected group
     for (let i = 0; i < this.userGroups.length; i++) {
-      if(this.userGroups[i].group === group.groupID) {
-        invalidGroupUsers.push(this.userGroups[i].user);
+      if(this.userGroups[i].groupID === group.groupID) {
+        invalidGroupUsers.push(this.userGroups[i].username);
       }
     }
     // Filter out users already in selected group from list of all users
     for (let i = 0; i < this.users.length; i++) {
       if (!invalidGroupUsers.includes(this.users[i].username)) {
-        validGroupUsers.push(this.users[i].username)
+        validGroupUsers.push(this.users[i]);
       }
     }
     
@@ -204,8 +199,8 @@ export class AdminComponent implements OnInit {
     let validGroupUsers = [];
     // Get all group users that are in selected group
     for (let i = 0; i < this.userGroups.length; i++) {
-      if(this.userGroups[i].group === group.groupID) {
-        validGroupUsers.push(this.userGroups[i].user);
+      if(this.userGroups[i].groupID === group.groupID) {
+        validGroupUsers.push(this.userGroups[i]);
       }
     }
     
@@ -254,11 +249,10 @@ export class AdminComponent implements OnInit {
       newUser = result;
       if (result !== undefined) {
         newUser.avatar = '../assets/default-avatar.jpg';
-        this.users.push(newUser);
         // Send user to server to add to db
         this.userData.addNewUser(newUser).subscribe(    
           data => {
-            console.log("Added new user:", data);
+            this.users = data;
           },    
           (err: HttpErrorResponse) => {      
             console.log(err.error);    
@@ -272,7 +266,9 @@ export class AdminComponent implements OnInit {
     this.userData.updateUsers(this.users).subscribe(
       data => {
         alert("Updated all users");
-        console.log(data)
+        this.users = data.udata;
+        this.userGroups = data.ugdata;
+        this.userChannels = data.ucdata;
       }
     );
     
@@ -281,7 +277,9 @@ export class AdminComponent implements OnInit {
   deleteUser(user) {
     if (confirm("Are you sure you want to delete " + user.username + "?")) {
       this.userData.deleteUser(user).subscribe(data => {
-        this.users = data;
+        this.users = data.udata;
+        this.userGroups = data.ugdata;
+        this.userChannels = data.ucdata;
       });
     }
   }
@@ -352,16 +350,16 @@ export class AdminComponent implements OnInit {
     let validChannelUsers = [];
     // Get all channel users that are in selected channel
     for (let i = 0; i < this.userChannels.length; i++) {
-      if (this.userChannels[i].channel === channel.channelID) {
-        invalidChannelUsers.push(this.userChannels[i].user);
+      if (this.userChannels[i].channelID === channel.channelID) {
+        invalidChannelUsers.push(this.userChannels[i].username);
       }
     }
 
     // Filter out users if they are not currently in the group
     for (let i = 0; i < this.userGroups.length; i++) {
-      if (this.userGroups[i].group === channel.groupID) {
-        if (!invalidChannelUsers.includes(this.userGroups[i].user)) {
-          validChannelUsers.push(this.userGroups[i].user)
+      if (this.userGroups[i].groupID === channel.groupID) {
+        if (!invalidChannelUsers.includes(this.userGroups[i].username)) {
+          validChannelUsers.push({'userID':this.userGroups[i].userID, 'username':this.userGroups[i].username})
         }
       }
     }
@@ -378,7 +376,7 @@ export class AdminComponent implements OnInit {
       if (result !== undefined) {
         //console.log(result);
         let user = result;
-        let group = channel.groupID;
+        let group = {'groupID': channel.groupID, 'groupName': channel.groupName};
         this.channelData.addNewUserToChannel(channel, group, user).subscribe(
           data => {
             this.userChannels = data;
@@ -392,8 +390,8 @@ export class AdminComponent implements OnInit {
     let validChannelUsers = [];
     // Get all channel users that are in selected channel
     for (let i = 0; i < this.userChannels.length; i++) {
-      if(this.userChannels[i].channel === channel.channelID) {
-        validChannelUsers.push(this.userChannels[i].user);
+      if(this.userChannels[i].channelID === channel.channelID) {
+        validChannelUsers.push({'userID': this.userChannels[i].userID, 'username': this.userChannels[i].username});
       }
     }
     
