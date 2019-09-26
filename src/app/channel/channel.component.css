@@ -4,23 +4,48 @@
 }
 
 .msg_container{
+    width: fit-content;
     margin-top: auto;
+    display: flex;
     margin-bottom: 10px;
-    margin-left: 15%;
+    margin-left: 0px;
     border-radius: 15px;
     background-color: #78e08f;
     padding: 10px;
     position: relative;
+    max-width: 80%;
+}
+.msg_container_send{
+    width: fit-content;
+    justify-content: flex-end !important;
+    display: flex;
+    margin-top: auto;
+    margin-bottom: 10px;
+    margin-right: 0px;
+    border-radius: 15px;
+    background-color: #82ccdd;
+    padding: 10px;
+    position: relative;
+    max-width: 80%;
 }
 
 .msg_time {
+    position: absolute;
+    min-width: 60px;
+    left:0;
+    bottom: -20px;
+    color: rgba(255,255,255,0.5);
+    font-size: 10px;
+}
+
+/* .msg_time_send {
     position: absolute;
     min-width: 60px;
     right:0;
     bottom: -20px;
     color: rgba(255,255,255,0.5);
     font-size: 10px;
-}
+} */
 
 .msg_body {
     overflow-y: auto;

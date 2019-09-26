@@ -20,11 +20,11 @@ export class GroupComponent implements OnInit {
     'username': "",
     'password': "",
     'email': "",
-    'role': ""
+    'role': "",
+    'avatar': ""
   };
   
   authenticated: string;
-  role: string;
   
   // Check if current user function
   readLocalStorageValue(key) {

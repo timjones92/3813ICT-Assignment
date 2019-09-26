@@ -3,15 +3,22 @@
         <span *ngIf="selectedChannel !== undefined" class="text-success">{{selectedChannel.channelName}}</span>
     </h2>
     <button class="btn btn-outline-light btn-sm" (click)="goBack()">Go back</button>
+    <button (click)="deleteChatHistory(selectedChannel)" class="btn btn-danger btn-sm ml-3">Clear Chat History</button>
     <br><br>
     <h4 class="text-white">Chat Messages</h4>
     <div class="card-body msg_body">
-        <div *ngFor="let message of messages; let i = index" [attr.data-index]="i" class="d-flex justify-content-end mb-4">
-            <div class="msg_container">
-                {{message}}
-                <span class="msg_time">{{datestamps[i] | date:'h:mm:ss a'}}</span>
+        <ng-container *ngFor="let message of messages">
+            <div *ngIf="message.userID === currentUser._id; else observer" class="mb-4 msg_container_send">
+                {{message.message}}
+                <span class="msg_time">{{message.timestamp | date:'h:mm:ss a'}}</span>
             </div>
-        </div>
+            <ng-template #observer>
+                <div class="mb-4 msg_container">
+                    {{message.message}}
+                    <span class="msg_time">{{message.timestamp | date:'h:mm:ss a'}}</span>
+                </div>
+            </ng-template>
+        </ng-container>
     </div>
     <form>
         <div class="form-group">
