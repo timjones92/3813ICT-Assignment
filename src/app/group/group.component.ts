@@ -23,7 +23,8 @@ export class GroupComponent implements OnInit {
     'role': "",
     'avatar': ""
   };
-  
+  selectedFile: File = null;
+  fd = new FormData();
   authenticated: string;
   
   // Check if current user function
@@ -65,5 +66,14 @@ export class GroupComponent implements OnInit {
     });
   }
 
+  public onFileAdded(event) {
+    this.selectedFile = <File>event.target.files[0]
+    this.fd.append('file', this.selectedFile)
+    this.userData.uploadNewAvatar(this.fd).subscribe(data => {
+      console.log(data);
+      this.currentUser.avatar = data;
+      console.log(this.currentUser)
+    });
+  }
   
 }

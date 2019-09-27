@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const formidable = require('formidable');
 const cors = require('cors');
 const http = require('http').Server(app);
 var path = require('path');
@@ -50,6 +51,7 @@ MongoClient.connect(url, {poolSize:10, useNewUrlParser: true, useUnifiedTopology
         require('./api/usergroups.js')(db, app);
         require('./api/userchannels.js')(db, app);
         require('./api/chats.js')(db,app, ObjectID);
+        require('./api/avatar.js')(db, app, formidable);
 });
 
 //Setup socket

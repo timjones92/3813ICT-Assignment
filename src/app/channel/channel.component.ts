@@ -12,7 +12,8 @@ import { UserService } from '../services/user.service';
   styleUrls: ['./channel.component.css']
 })
 export class ChannelComponent implements OnInit {
-
+  
+  container: HTMLElement;
   channelID: number;
   channels: [Channel];
   selectedChannel: Channel;
@@ -32,7 +33,7 @@ export class ChannelComponent implements OnInit {
   users = [];
 
   messagecontent:string = "";
-  messages:string[] = [];
+  messages:any[] = [];
   ioConnection:any;
 
   // Check if current user function
@@ -98,9 +99,20 @@ export class ChannelComponent implements OnInit {
   // Connect to io socket at server
   private initToConnection() {
     this.socketService.initSocket();
-    // this.ioConnection = this.socketService.onMessage().subscribe((message) => {
-    //   this.messages.push(message);
-    // });
+    this.ioConnection = this.socketService.onMessage().subscribe((message) => {
+      // console.log("Message user id", message.user._id);
+      let newMsg = {
+        'message':message.message,
+        'timestamp': message.timestamp,
+        'channelID': message.channel.channelID,
+        'channelName': message.channel.channelName,
+        'userID': message.user._id,
+        'username': message.user.username,
+        'userimg': message.user.avatar
+      }
+      console.log(newMsg)
+      this.messages.push(newMsg);
+    });
   }
 
   // Send message content to socket service 
@@ -108,9 +120,9 @@ export class ChannelComponent implements OnInit {
     if (this.messagecontent) {
       this.today = Date.now();
       this.datestamps.push(this.today);
-      this.socketService.send(this.messagecontent);
+      this.socketService.send(this.messagecontent, this.today, this.selectedChannel, this.currentUser);
       this.socketService.addNewChannelMessage(this.messagecontent, this.today, this.selectedChannel, this.currentUser).subscribe(data => {
-        this.messages = data;
+        console.log("success!")
       });
       this.messagecontent = null;
     } else {

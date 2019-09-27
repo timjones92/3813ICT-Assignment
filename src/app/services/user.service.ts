@@ -30,4 +30,8 @@ export class UserService {
   checkValidUser(user) {
     return this.http.post<any>(this.url + "/api/checkvaliduser", user);
   }
+
+  uploadNewAvatar(img) {
+    return this.http.post<any>(this.url + "/api/uploadAvatar", img);
+  }
 }

@@ -16,7 +16,8 @@ module.exports = function(db, app, ObjectID) {
             'channelID': channel.channelID, 
             'channelName': channel.channelName, 
             'userID': user._id,
-            'username': user.username
+            'username': user.username,
+            'userimg': user.avatar
         }, (err, dbres) => {
             if (err) throw err;
             collection.find({'channelID': channel.channelID}).toArray((err, data) => {

@@ -6,7 +6,7 @@
 .msg_container{
     width: fit-content;
     margin-top: auto;
-    display: flex;
+    display: inline-flex;
     margin-bottom: 10px;
     margin-left: 0px;
     border-radius: 15px;
@@ -15,13 +15,13 @@
     position: relative;
     max-width: 80%;
 }
+
 .msg_container_send{
     width: fit-content;
-    justify-content: flex-end !important;
-    display: flex;
+    display: inline-flex;
     margin-top: auto;
     margin-bottom: 10px;
-    margin-right: 0px;
+    margin-left: 0px;
     border-radius: 15px;
     background-color: #82ccdd;
     padding: 10px;
@@ -31,22 +31,32 @@
 
 .msg_time {
     position: absolute;
-    min-width: 60px;
+    min-width: 130px;
     left:0;
     bottom: -20px;
     color: rgba(255,255,255,0.5);
     font-size: 10px;
 }
 
-/* .msg_time_send {
-    position: absolute;
-    min-width: 60px;
-    right:0;
-    bottom: -20px;
-    color: rgba(255,255,255,0.5);
-    font-size: 10px;
-} */
-
 .msg_body {
     overflow-y: auto;
+    max-height: 35em;
+}
+
+.img_msg {
+    height: 45px;
+    width: 45px;
+    margin-right: 5px;
+}
+
+.add_msg_bg {
+    background-color: rgba(110, 110, 110, 0.501) !important;
+    padding-top: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 2px;
+}
+
+#msgContainer {
+    height: auto;
 }

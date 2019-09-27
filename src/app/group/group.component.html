@@ -1,6 +1,11 @@
 <div *ngIf="authenticated !== null" class="container group-bg p-2">
     <h3 class="text-white text-center">Hi {{currentUser.username}}</h3>
-    <img src={{currentUser.avatar}} class="mx-auto d-block" alt="User avatar" height="150px">
+    <div>
+        <img src={{currentUser.avatar}} class="mx-auto d-block" alt="User avatar" height="150px">
+        <form>
+            <input type="file" name="upload" class="mx-auto mt-2 form-control-file" style="max-width: 9%; min-width: 100px;" (change)="onFileAdded($event)">
+        </form>
+    </div>
     <br>
     <p class="text-white">Here are your current Groups and Channels.</p>
     <ul *ngFor="let group of userGroups" class="text-white">

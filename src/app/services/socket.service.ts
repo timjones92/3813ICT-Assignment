@@ -17,8 +17,8 @@ export class SocketService {
     this.socket = io(SERVER_URL);
   }
 
-  public send(message: string): void {
-    this.socket.emit('message', message);
+  public send(message: string, timestamp, channel: Channel, user: User): void {
+    this.socket.emit('message', {message, timestamp, channel, user});
   }
 
   public onMessage(): Observable<any> {
