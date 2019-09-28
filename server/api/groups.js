@@ -109,4 +109,57 @@ module.exports = function(db, app, ObjectID) {
             }
         });
     });
+
+    //Route to manage adding a user to a group
+    app.post('/api/addNewGroupAssis', function(req, res) {
+        if (!req.body) {
+            return res.sendStatus(400);
+        }
+        group = req.body.group;
+        user = req.body.user;
+        const collection = db.collection('groupassis');
+        // Check for duplicate id's
+        
+        collection.insertOne(
+            {
+                groupID: group.groupID, 
+                groupName: group.groupName, 
+                userID: user._id, 
+                username: user.username
+            }, 
+            (err, dbres) => {
+                if (err) throw err;
+            //send back to client number of items inserted and no error message
+            collection.find({}).toArray((err, data) => {
+                res.send(data);
+            });
+        });
+    });
+
+    // Route to delete a user from a group
+    app.post('/api/deleteGroupAssis', function(req, res) {
+        if (!req.body) {
+            return res.sendStatus(400);
+        }
+        groupAssis = req.body;
+        const groupAssisCol = db.collection('groupassis');
+        var objectid = new ObjectID(groupAssis._id);
+        // Delete a single product based on unique ID
+        groupAssisCol.deleteOne({_id: objectid}, (err, docs) => {
+            if (err) throw err;
+            // Send return message of Group Assis with newly deleted Group Assis
+        groupAssisCol.find({}).toArray((err, data) => {
+            res.send(data);
+        });
+        });
+        
+    });
+
+    // Route to get list of all group users from the database
+    app.get('/api/getGroupAssisList', function(req,res) {
+        const collection = db.collection('groupassis');
+        collection.find({}).toArray((err, data) => {
+            res.send(data);
+        });
+    });
 }

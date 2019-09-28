@@ -47,4 +47,15 @@ export class GroupsService {
     return this.http.post<any>(this.url + "/api/deleteUserFromGroup", {'group': group, 'user': user});
   }
 
+  addGroupAssis(group: Group, user: User) {
+    return this.http.post<any>(this.url + "/api/addNewGroupAssis", {'group': group, 'user': user});
+  }
+
+  deleteGroupAssis(groupAssis) {
+    return this.http.post<any>(this.url + "/api/deleteGroupAssis", groupAssis);
+  }
+
+  getGroupAssisList() {
+    return this.http.get<any>(this.url + "/api/getGroupAssisList");
+  }
 }

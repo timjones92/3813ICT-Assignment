@@ -9,7 +9,7 @@ import { GroupComponent } from './group/group.component';
 import { SocketService } from './services/socket.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AdminComponent } from './admin/admin.component';
+import { AdminComponent, AddGroupAssisDialog, DeleteGroupAssisDialog } from './admin/admin.component';
 import { MatDialogModule, MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material';
@@ -28,7 +28,17 @@ import { HttpClientModule } from '@angular/common/http';
 
 
 @NgModule({
-  entryComponents: [GroupDialog, UserDialog, AddGroupUserDialog, DeleteUserFromGroupDialog, AddChannelDialog, AddChannelUserDialog, DeleteUserFromChannelDialog],
+  entryComponents: [
+    GroupDialog, 
+    UserDialog, 
+    AddGroupUserDialog, 
+    DeleteUserFromGroupDialog, 
+    AddChannelDialog, 
+    AddChannelUserDialog, 
+    DeleteUserFromChannelDialog,
+    AddGroupAssisDialog,
+    DeleteGroupAssisDialog
+  ],
   declarations: [
     AppComponent,
     LoginComponent,
@@ -41,7 +51,9 @@ import { HttpClientModule } from '@angular/common/http';
     DeleteUserFromGroupDialog,
     AddChannelDialog,
     AddChannelUserDialog,
-    DeleteUserFromChannelDialog
+    DeleteUserFromChannelDialog,
+    AddGroupAssisDialog,
+    DeleteGroupAssisDialog
   ],
   imports: [
     BrowserModule,

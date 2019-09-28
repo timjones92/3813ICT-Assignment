@@ -71,7 +71,8 @@
 }
 
 .thumbnail {
-    width: 100%;
+    /* width: 100%; */
+    float: right;
     max-height:200px;
     border: 0px!important;
     padding: 0px;

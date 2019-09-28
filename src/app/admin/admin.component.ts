@@ -6,7 +6,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { GroupsService } from '../services/groups.service';
 import { UserService } from '../services/user.service';
 import { ChannelService } from '../services/channel.service';
-import { Router } from '@angular/router';
 
 
 @Component({
@@ -22,9 +21,7 @@ export class AdminComponent implements OnInit {
   channels: Channel[] = [];
   userGroups = [];
   userChannels = [];
-  currentUser = {username: "", email: "", role: "", avatar: ""};
-  currentUserGroups = [];
-  groupAssis = {groupID: 0, groupName: "", username: ""};
+  currentUser = {username: "", email: "", role: "", avatar: "", groupAssis: false};
   groupAssisList = [];
 
   authenticated: string;
@@ -39,8 +36,7 @@ export class AdminComponent implements OnInit {
     public dialog: MatDialog,
     private groupsData: GroupsService,
     private userData: UserService,
-    private channelData: ChannelService,
-    private router: Router
+    private channelData: ChannelService
     ) { }
 
   ngOnInit() {
@@ -59,7 +55,10 @@ export class AdminComponent implements OnInit {
         // Get current user from all users and add to variable `currentUser`
         for (let i = 0; i < this.users.length; i++) {
           if (this.users[i].username === this.authenticated) {
-            this.currentUser = this.users[i]
+            this.currentUser.username = this.users[i].username;
+            this.currentUser.email = this.users[i].email;
+            this.currentUser.role = this.users[i].role;
+            this.currentUser.avatar = this.users[i].avatar;
           }
         }
       }
@@ -72,8 +71,6 @@ export class AdminComponent implements OnInit {
         console.log('All current channels are:', this.channels)
       }
     });
-    
-    console.log("Current User groups are:", this.currentUserGroups)
 
     // Get all group users
     this.groupsData.getGroupUsersList().subscribe(data => {
@@ -88,6 +85,20 @@ export class AdminComponent implements OnInit {
       if (data !== null) {
         this.userChannels = data;
         console.log("Current channel users are:", this.userChannels);
+      }
+    });
+
+    // Get all group assistants
+    this.groupsData.getGroupAssisList().subscribe(data => {
+      if (data != null) {
+        this.groupAssisList = data;
+        console.log("Group Assis list:", this.groupAssisList);
+        for (let i in this.groupAssisList) {
+          if (this.groupAssisList[i].username === this.currentUser.username) {
+            this.currentUser.groupAssis = true;
+            console.log("Curr:", this.currentUser)
+          }
+        }
       }
     });
     
@@ -222,6 +233,86 @@ export class AdminComponent implements OnInit {
             this.userChannels = data.ucdata;
           }
         );
+      }
+    });
+  }
+
+  addNewGroupAssis(group) {
+    let invalidGroupAssis = [];
+    let validUsers = [];
+    let stillValid = [];
+    // Find users who are already Group Assis in selected group
+    for (let i = 0; i < this.groupAssisList.length; i++) {
+      if(this.groupAssisList[i].groupID === group.groupID) {
+        invalidGroupAssis.push(this.groupAssisList[i].username);
+      }
+    }
+
+    // Find users who are in the selected group
+    for (let i = 0; i < this.userGroups.length; i++) {
+      if(this.userGroups[i].groupID === group.groupID) {
+        validUsers.push(this.userGroups[i].username);
+      }
+    }
+    
+    // Valid user must have role user
+    for (let index in this.users) {
+      // if not already a Group Assis
+      if (!invalidGroupAssis.includes(this.users[index].username)) {
+        // If in selected group
+        if (validUsers.includes(this.users[index].username)) {
+          // if role is normal user
+          if (this.users[index].role === 'User') {
+            stillValid.push(this.users[index]);
+          }
+        }
+      }
+    }
+
+    const addGroupAssisDialogRef = this.dialog.open(AddGroupAssisDialog, {
+      height: '400px',
+      width: '600px',
+      data: {
+        users: stillValid,
+        group: group
+      }
+    });
+
+    addGroupAssisDialogRef.afterClosed().subscribe(result => {
+      if (result !== undefined) {
+        let newGroupAssis = result;
+        this.groupsData.addGroupAssis(group, newGroupAssis).subscribe(data => {
+          this.groupAssisList = data;
+        });
+      }
+    });
+  }
+
+  deleteGroupAssis(group) {
+    let validGroupAssis = [];
+
+    // Find users who are already Group Assis in selected group
+    for (let i = 0; i < this.groupAssisList.length; i++) {
+      if(this.groupAssisList[i].groupID === group.groupID) {
+        validGroupAssis.push(this.groupAssisList[i]);
+      }
+    }
+
+    const deleteGroupAssisDialogRef = this.dialog.open(DeleteGroupAssisDialog, {
+      height: '400px',
+      width: '600px',
+      data: {
+        groupAssis: validGroupAssis,
+        group: group
+      }
+    });
+
+    deleteGroupAssisDialogRef.afterClosed().subscribe(result => {
+      if (result !== undefined) {
+        let groupAssisToDelete = result;
+        this.groupsData.deleteGroupAssis(groupAssisToDelete).subscribe(data => {
+          this.groupAssisList = data;
+        });
       }
     });
   }
@@ -627,5 +718,62 @@ export class DeleteUserFromChannelDialog {
     
   onCancelClick(): void {
     this.deleteUserFromChannelDialogRef.close();
+  }
+}
+
+// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+// Add Group Assis Dialog class \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+export interface AddGroupAssisDialogData {
+  users: [User];
+  groups: [Group];
+}
+
+@Component({
+  selector: 'addGroupAssisDialog',
+  templateUrl: 'addGroupAssisDialog.html',
+})
+
+export class AddGroupAssisDialog {
+
+  constructor(
+    public addGroupAssisDialogRef: MatDialogRef<AddGroupAssisDialog>,
+    @Inject(MAT_DIALOG_DATA) public data: AddGroupAssisDialogData) {}
+    
+  ngOnInit() {
+
+  }
+
+  onCancelClick(): void {
+    this.addGroupAssisDialogRef.close();
+  }
+}
+
+
+// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+// Delete Group Assis Dialog class \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+export interface DeleteGroupAssisDialogData {
+  groupAssis: [Object];
+  group: Group;
+}
+
+@Component({
+  selector: 'deleteGroupAssisDialog',
+  templateUrl: 'deleteGroupAssisDialog.html',
+})
+
+export class DeleteGroupAssisDialog {
+
+  constructor(
+    public deleteGroupAssisDialogRef: MatDialogRef<DeleteGroupAssisDialog>,
+    @Inject(MAT_DIALOG_DATA) public data: DeleteGroupAssisDialogData) {}
+    
+  ngOnInit() {
+
+  }
+
+  onCancelClick(): void {
+    this.deleteGroupAssisDialogRef.close();
   }
 }
