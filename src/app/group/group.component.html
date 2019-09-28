@@ -1,20 +1,74 @@
 <div *ngIf="authenticated !== null" class="container group-bg p-2">
-    <h3 class="text-white text-center">Hi {{currentUser.username}}</h3>
-    <div>
-        <img src={{currentUser.avatar}} class="mx-auto d-block" alt="User avatar" height="150px">
-        <form>
-            <input type="file" name="upload" class="mx-auto mt-2 form-control-file d-inline-flex" style="max-width: 13%; min-width: 100px;" (change)="onFileAdded($event)">
-            <input *ngIf="fileToUpload === undefined" type="submit" value="Upload" class="btn btn-success btn-sm d-inline-flex" (click)="onFileSubmit()">
-        </form>
+    <div class="container">
+        <div class="row user-menu-container square">
+            <div class="col-md-8 user-details mx-auto">
+                <div class="row coralbg text-light">
+                    <div class="col-md-8 no-pad">
+                        <div class="user-pad">
+                            <h2>Welcome back, &nbsp;<b>{{currentUser.username}}</b></h2>
+                            <br>
+                            <h5 class="white"><i class="fas fa-envelope"></i> {{currentUser.email}}</h5>
+                            <h5 class="white" *ngIf="currentUser.role !== 'User'"><i class="fas fa-user-shield"></i> {{currentUser.role}}</h5>
+                        </div>
+                    </div>
+                    <div class="col-md-4 no-pad">
+                            <div class="user-image">
+                                <img src={{currentUser.avatar}} class="img-responsive thumbnail">
+                            </div>
+                    </div>
+                </div>
+                <div class="row overview">
+                    <div class="col-md-4 text-center">
+                        <h3>POSTS</h3>
+                        <h4>2,784</h4>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <h3>GROUPS</h3>
+                        <h4>456</h4>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <h3>CHANNELS</h3>
+                        <h4>4,901</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <br>
-    <p class="text-white">Here are your current Groups and Channels.</p>
-    <ul *ngFor="let group of userGroups" class="text-white">
-        <li *ngIf="group.userID === currentUser._id">GROUP: {{group.groupName}}</li>
-        <ul *ngFor="let channel of userChannels">
-            <li *ngIf="channel.userID === currentUser._id && channel.groupID === group.groupID && channel.userID === group.userID">
-                CHANNEL: <a [routerLink]="['/channels',channel.channelID]">{{channel.channelName}}</a>
-            </li>
-        </ul>
-    </ul>
+    
+    <mat-tab-group mat-stretch-tabs>
+        <mat-tab label="Groups & Channels">
+            <h3 class="text-white text-center mt-3">Your Current Groups & Channels.</h3>
+            <div class="container mt-3">
+                <div class="row text-white">
+                    <ng-container *ngFor="let group of userGroups">
+                        <div *ngIf="group.userID === currentUser._id" class="mx-auto col-12 col-xl-4 col-md-6 border p-3 mb-3 group_container">
+                            <h5 class="text-center bg-info">{{group.groupName}}</h5>
+                            <ng-container *ngFor="let channel of userChannels">
+                                <div *ngIf="channel.userID === currentUser._id && channel.groupID === group.groupID && channel.userID === group.userID">
+                                    CHANNEL: <a [routerLink]="['/channels',channel.channelID]">{{channel.channelName}}</a>
+                                </div>
+                            </ng-container>
+                        </div>     
+                    </ng-container>
+                </div>
+            </div>
+        </mat-tab>
+        <mat-tab label="Personal Details">
+            
+        </mat-tab>
+        <mat-tab label="Change Profile Picture">
+            <div class="avatar_container">
+                <h3 class="text-white text-center">Change Your Profile Picture</h3>
+                <p class="text-white text-center">Your Selected Image Preview</p>
+                <div class="border text-center mx-auto text-white d-block" style="width: 300px; height: 300px">
+                    <img [src]="imgURL" width="300px" *ngIf="imgURL">
+                </div>
+                <form class="px-2 pb-2 mx-auto" style="max-width: 550px">
+                    <input type="file" name="upload" class="mx-auto mt-2 form-control-file text-white" (change)="onFileAdded($event)">
+                    <input type="submit" value="Upload" class="btn btn-success btn-block mt-2 text-center" (click)="onFileSubmit()">
+                </form>
+            </div>
+        </mat-tab>
+        
+    </mat-tab-group>
 </div>
