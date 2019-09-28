@@ -3,7 +3,8 @@
     <div>
         <img src={{currentUser.avatar}} class="mx-auto d-block" alt="User avatar" height="150px">
         <form>
-            <input type="file" name="upload" class="mx-auto mt-2 form-control-file" style="max-width: 9%; min-width: 100px;" (change)="onFileAdded($event)">
+            <input type="file" name="upload" class="mx-auto mt-2 form-control-file d-inline-flex" style="max-width: 13%; min-width: 100px;" (change)="onFileAdded($event)">
+            <input *ngIf="fileToUpload === undefined" type="submit" value="Upload" class="btn btn-success btn-sm d-inline-flex" (click)="onFileSubmit()">
         </form>
     </div>
     <br>

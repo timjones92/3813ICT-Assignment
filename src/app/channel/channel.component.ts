@@ -111,7 +111,9 @@ export class ChannelComponent implements OnInit {
         'userimg': message.user.avatar
       }
       console.log(newMsg)
-      this.messages.push(newMsg);
+      if (newMsg.channelID === this.selectedChannel.channelID) {
+        this.messages.push(newMsg);
+      }
     });
   }
 

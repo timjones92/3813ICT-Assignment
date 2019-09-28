@@ -51,7 +51,7 @@ MongoClient.connect(url, {poolSize:10, useNewUrlParser: true, useUnifiedTopology
         require('./api/usergroups.js')(db, app);
         require('./api/userchannels.js')(db, app);
         require('./api/chats.js')(db,app, ObjectID);
-        require('./api/avatar.js')(db, app, formidable);
+        require('./api/avatar.js')(db, app, ObjectID, formidable);
 });
 
 //Setup socket

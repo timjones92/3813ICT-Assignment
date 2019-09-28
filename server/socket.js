@@ -9,7 +9,6 @@ module.exports = {
             // When a message comes in emit it back to all sockets with the message.
             socket.on('message', (message) => {
                 io.emit('message', message);
-                console.log("Message received:",message)
             })
 
         });

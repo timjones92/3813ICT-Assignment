@@ -23,9 +23,8 @@ export class GroupComponent implements OnInit {
     'role': "",
     'avatar': ""
   };
-  selectedFile: File = null;
-  fd = new FormData();
   authenticated: string;
+  fileToUpload: any;
   
   // Check if current user function
   readLocalStorageValue(key) {
@@ -67,13 +66,19 @@ export class GroupComponent implements OnInit {
   }
 
   public onFileAdded(event) {
-    this.selectedFile = <File>event.target.files[0]
-    this.fd.append('file', this.selectedFile)
-    this.userData.uploadNewAvatar(this.fd).subscribe(data => {
-      console.log(data);
-      this.currentUser.avatar = data;
-      console.log(this.currentUser)
-    });
+    this.fileToUpload = event.target.files[0]
   }
   
+  public onFileSubmit() {
+    let formData = new FormData();
+    formData.append('file', this.fileToUpload, this.fileToUpload.name);
+    // console.log("File to upload:", this.fileToUpload)
+    this.userData.uploadNewAvatar(formData).subscribe(data => {
+      console.log(data);
+      this.currentUser.avatar = '../../assets/' + data.name;
+    });
+    this.userData.updateUserAvatar(this.currentUser, '../../assets/' + this.fileToUpload.name).subscribe(data => {
+      console.log(data);
+    });
+  }
 }
