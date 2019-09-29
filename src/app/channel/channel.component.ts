@@ -35,6 +35,8 @@ export class ChannelComponent implements OnInit {
   messagecontent:string = "";
   messages:any[] = [];
   ioConnection:any;
+  fileUpload: any;
+  imgURL: any;
 
   // Check if current user function
   readLocalStorageValue(key) {
@@ -101,6 +103,7 @@ export class ChannelComponent implements OnInit {
     this.socketService.initSocket();
     this.ioConnection = this.socketService.onMessage().subscribe((message) => {
       // console.log("Message user id", message.user._id);
+      // Define new message from socket
       let newMsg = {
         'message':message.message,
         'timestamp': message.timestamp,
@@ -108,11 +111,19 @@ export class ChannelComponent implements OnInit {
         'channelName': message.channel.channelName,
         'userID': message.user._id,
         'username': message.user.username,
-        'userimg': message.user.avatar
+        'userimg': message.user.avatar,
+        'isImage': false
       }
-      console.log(newMsg)
+      // if new message is in the current channel
       if (newMsg.channelID === this.selectedChannel.channelID) {
-        this.messages.push(newMsg);
+        // If message is an image
+        if (message.message.includes('/uploads/')) {
+          newMsg.isImage = true;
+          this.messages.push(newMsg);
+        } else {
+          this.messages.push(newMsg);
+        }
+          
       }
     });
   }
@@ -142,6 +153,38 @@ export class ChannelComponent implements OnInit {
     }
   }
   
+  public onFileAdded(event) {
+    this.fileUpload = event.target.files[0];
+    this.messagecontent = event.target.files[0].name;
+    var reader = new FileReader();
+    if (this.fileUpload !== undefined) {
+      reader.readAsDataURL(this.fileUpload);
+      reader.onload = (_event) => {
+        this.imgURL = reader.result;
+      }
+    }
+  }
+  
+  public onFileSubmit() {
+    let formData = new FormData();
+    formData.append('uploads[]', this.fileUpload, this.fileUpload.name);
+    // console.log("File to upload:", this.fileToUpload)
+    let now = Date.now();
+    var re = "/Users/HPCustomer/3813ICT/Assignment1/ChatApp/server/api";
+    this.channelData.uploadNewChatImage(formData).subscribe(data => {
+      this.socketService.send(data.img.replace(re, ""), now, this.selectedChannel, this.currentUser);
+      this.socketService.addNewChannelImage(data.img.replace(re, ""), now, this.selectedChannel, this.currentUser).subscribe(data => {
+        console.log("Uploaded new image!");
+      });
+    });
+  }
+
+  clearMessage() {
+    this.fileUpload = null;
+    this.messagecontent = "";
+    this.imgURL = "";
+  }
+
   // Go back to previous URL
   private goBack() {
     this._location.back();

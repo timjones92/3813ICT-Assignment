@@ -116,10 +116,14 @@ export class GroupComponent implements OnInit, OnDestroy {
     // console.log("File to upload:", this.fileToUpload)
     this.userData.uploadNewAvatar(formData).subscribe(data => {
       console.log(data);
-      this.currentUser.avatar = '/assets/' + data.img;
-      this.userData.updateUserAvatar(this.currentUser, '/assets/' + data.img).subscribe(data => {
-        console.log(data);
-      });
+      if (data) {
+        var re = "/Users/HPCustomer/3813ICT/Assignment1/ChatApp/server/api";
+        this.currentUser.avatar = data.img.replace(re, "");
+        this.userData.updateUserAvatar(this.currentUser, data.img.replace(re, "")).subscribe(data => {
+          console.log(data);
+        });
+      }
+      
     });
   }
 }

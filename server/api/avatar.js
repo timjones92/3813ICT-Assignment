@@ -1,5 +1,5 @@
-module.exports = function(db, app, ObjectID, formidable, multipart, fs) {
-    const  multipartMiddleware  =  multipart({ uploadDir: '/Users/HPCustomer/3813ICT/Assignment1/ChatApp/src/assets' });
+module.exports = function(db, app, ObjectID, formidable, multipart) {
+    const  multipartMiddleware = multipart({ uploadDir: __dirname + '/uploads'});
     
     //
     // app.post('/api/uploadAvatar', function(req, res) {
@@ -16,12 +16,12 @@ module.exports = function(db, app, ObjectID, formidable, multipart, fs) {
 
     // });
 
-    app.post('/api/uploadAvatar', multipartMiddleware, function(req, res) {
-        console.log("This is the request", req.files);
+    app.post('/api/uploadImage', multipartMiddleware, function(req, res) {
+        //console.log("This is the request", req);
         
         res.json({
             'message': 'File uploaded successfully.',
-            'img': req.files.uploads[0].originalFilename
+            'img': req.files.uploads[0].path
         });
     });
     

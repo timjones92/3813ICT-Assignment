@@ -1,29 +1,34 @@
 <div class="container p-2 channel-body">
-    <h2 class="text-info">Talking in channel: 
-        <span *ngIf="selectedChannel !== undefined" class="text-success">{{selectedChannel.channelName}}</span>
-    </h2>
-    <button class="btn btn-outline-light btn-sm" (click)="goBack()">Go back</button>
-    <button *ngIf="currentUser.role !== 'User'" (click)="deleteChatHistory(selectedChannel)" class="btn btn-danger btn-sm ml-3">Clear Chat History</button>
-    <br><br>
+    <div class="channel_head">
+        <h2 class="text-info">Talking in channel: 
+            <span *ngIf="selectedChannel !== undefined" class="text-success">{{selectedChannel.channelName}}</span>
+        </h2>
+        <button class="btn btn-outline-light btn-sm" (click)="goBack()">Go back</button>
+        <button *ngIf="currentUser.role !== 'User'" (click)="deleteChatHistory(selectedChannel)" class="btn btn-danger btn-sm ml-3">Clear Chat History</button>
+    </div>
     <h4 class="text-white">Chat Messages</h4>
     <div class="my-3 msg_body" #scrollMe [scrollTop]="scrollMe.scrollHeight">
         <ng-container *ngFor="let message of messages">
             <div *ngIf="message.userID === currentUser._id; else observer">
                 <div class="d-inline">
-                    <img src="{{message.userimg}}" alt="Message owner's avatar" class="rounded-circle img_msg">
+                    <img src="http://localhost:3000{{message.userimg}}" alt="Message owner's avatar" class="rounded-circle img_msg">
                 </div>
                 <div class="mb-4 msg_container_send">
-                    <b>{{message.username}}:&nbsp;</b> {{message.message}}
+                    <b>{{message.username}}:&nbsp;</b>
+                    <span *ngIf="!message.isImage || message.isImage === false">{{message.message}}</span>
+                    <img *ngIf="message.isImage === true" src="http://localhost:3000{{message.message}}" class="chat_image d-block">
                     <span class="msg_time">{{message.timestamp | date:'h:mm:ss a, dd MMM, yyyy'}}</span>
                 </div>
             </div>
             <ng-template #observer>
                 <div>
                     <div class="d-inline">
-                        <img src="{{message.userimg}}" alt="Message owner's avatar" class="rounded-circle img_msg">
+                        <img src="http://localhost:3000{{message.userimg}}" alt="Message owner's avatar" class="rounded-circle img_msg">
                     </div>
                     <div class="mb-4 msg_container">
-                        <b>{{message.username}}:&nbsp;</b> {{message.message}}
+                        <b>{{message.username}}:&nbsp;</b> 
+                        <span *ngIf="!message.isImage || message.isImage === false">{{message.message}}</span>
+                        <img *ngIf="message.isImage === true" src="http://localhost:3000{{message.message}}" class="chat_image d-block">
                         <span class="msg_time">{{message.timestamp | date:'h:mm:ss a, dd MMM, yyyy'}}</span>
                     </div>
                 </div>
@@ -32,11 +37,20 @@
     </div>
     <form class="add_msg_bg">
         <div class="form-group">
-            <label for="messagecontent" class="text-white">New Message</label>
-            <input type="text" [(ngModel)]="messagecontent" name="messagecontent" id="messagecontent" class="form-control" placeholder="Type your message...">
+            <label for="messagecontent" class="text-white d-block">New Message</label>
+            <input *ngIf="!imgURL" type="text" [(ngModel)]="messagecontent" name="messagecontent" id="messagecontent" class="form-control d-inline-flex" placeholder="Type your message...">
+            <input type="image" [src]="imgURL" height="200px" *ngIf="imgURL" class="d-inline-flex">
+            <div class="image-upload d-inline-flex">
+                <label for="file-input">
+                    <i class="fas fa-paperclip fa-2x text-info ml-2"></i>
+                </label>
+                <input type="file" name="upload" id="file-input" (change)="onFileAdded($event)">
+            </div>
         </div>
         <div class="form-group">
-            <button (click)="chat(messagecontent)" class="btn btn-primary">Chat</button>
+            <button *ngIf="!fileUpload" (click)="chat(messagecontent)" class="btn btn-primary">Send</button>
+            <input *ngIf="fileUpload" type="submit" value="Send" class="btn btn-primary text-center" (click)="onFileSubmit()">
+            <button *ngIf="fileUpload" (click)="clearMessage()" class="btn btn-danger ml-2">Clear</button>
         </div>
     </form>
 </div>

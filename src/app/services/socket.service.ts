@@ -39,4 +39,8 @@ export class SocketService {
   public deleteAllChannelMessages(channel) {
     return this.http.post<any>("http://localhost:3000/api/deleteAllChannelMessages", channel);
   }
+
+  public addNewChannelImage(message: string, timestamp, channel: Channel, user: User) {
+    return this.http.post<any>("http://localhost:3000/api/addNewChatImage", {'message': message, 'timestamp': timestamp, 'channel': channel, 'user': user});
+  }
 }

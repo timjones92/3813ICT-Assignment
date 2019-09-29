@@ -60,3 +60,32 @@
 #msgContainer {
     height: auto;
 }
+
+#messagecontent {
+    width: 93%;
+}
+
+.image-upload > input
+{
+    display: none;
+}
+
+.image-upload img
+{
+    width: 80px;
+    cursor: pointer;
+}
+
+.channel_head {
+    background-color: rgba(110, 110, 110, 0.501) !important;
+    padding: 10px;
+    margin-bottom: 2%;
+}
+
+i {
+    cursor: pointer;
+}
+
+.chat_image {
+    max-width: 300px;
+}

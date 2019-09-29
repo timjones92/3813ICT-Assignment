@@ -24,7 +24,7 @@
                                 <tr *ngFor="let user of users; index as i">
                                     <ng-container *ngIf="user.username !== 'Super'">
                                     <td class="align-middle">{{i}}</td>
-                                    <td class="align-middle text-center"><img src="{{user.avatar}}" alt="user-avatar" style="width:3em"></td>
+                                    <td class="align-middle text-center"><img src="http://localhost:3000{{user.avatar}}" alt="user-avatar" style="width:3em"></td>
                                     <td class="align-middle"><input type="text" class="form-control" placeholder="Username" [(ngModel)]="user.username" name="{{user.username}}"></td>
                                     <td class="align-middle"><input type="text" class="form-control" placeholder="Password" [(ngModel)]="user.password" name="{{user.password}}"></td>
                                     <td class="align-middle"><input type="text" class="form-control" placeholder="Email" [(ngModel)]="user.email" name="{{user.email}}"></td>

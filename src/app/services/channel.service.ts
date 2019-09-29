@@ -39,4 +39,9 @@ export class ChannelService {
   deleteUserFromChannel(channel: Channel, group: Group, user: User) {
     return this.http.post<any>(this.url + "/api/deleteUserFromChannel", {'channel': channel, 'group': group, 'user': user});
   }
+
+  uploadNewChatImage(img) {
+    return this.http.post<any>(this.url + "/api/uploadImage", img);
+  }
+
 }

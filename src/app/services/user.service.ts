@@ -33,14 +33,11 @@ export class UserService {
   }
 
   uploadNewAvatar(img) {
-    return this.http.post<any>(this.url + "/api/uploadAvatar", img);
+    return this.http.post<any>(this.url + "/api/uploadImage", img);
   }
 
   updateUserAvatar(user, img) {
     return this.http.post<any>(this.url + '/api/updateUserAvatar', {'user': user, 'img': img});
   }
 
-  getImage(url: string): Observable<Blob> {
-    return this.http.get(url, {responseType: 'blob'});
-  }
 }

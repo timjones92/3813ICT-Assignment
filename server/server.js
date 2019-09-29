@@ -23,7 +23,7 @@ app.use(bodyParser.urlencoded({
 app.use(express.static(path.join(__dirname,'../dist/ChatApp/')));
 const formidable = require('formidable');
 const multipart = require('connect-multiparty');
-
+app.use('/uploads', express.static(path.join(__dirname, 'api/uploads')));
 // Get login route 
 require('./routes/login.js')(app, path);
 // Get channel route
@@ -56,7 +56,7 @@ MongoClient.connect(url, {poolSize:10, useNewUrlParser: true, useUnifiedTopology
         require('./api/usergroups.js')(db, app);
         require('./api/userchannels.js')(db, app);
         require('./api/chats.js')(db,app, ObjectID);
-        require('./api/avatar.js')(db, app, ObjectID, formidable, multipart, fs);
+        require('./api/avatar.js')(db, app, ObjectID, formidable, multipart);
 });
 
 //Setup socket
