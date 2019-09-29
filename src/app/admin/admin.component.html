@@ -145,7 +145,7 @@
                     </form>
                 </div>
             </mat-tab>
-            <mat-tab label="Channels">
+            <mat-tab *ngIf="currentUser.groupAssis === true || currentUser.role === 'SuperAdmin' || currentUser.role === 'GroupAdmin'" label="Channels">
                 <!-- Channels Adminstration -->
                 <div class="p-2">
                     <form>

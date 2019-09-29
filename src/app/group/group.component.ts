@@ -1,7 +1,8 @@
-import { Component, OnInit} from '@angular/core';
+import { Component, OnInit, OnDestroy} from '@angular/core';
 import { UserService } from '../services/user.service';
 import { GroupsService } from '../services/groups.service';
 import { ChannelService } from '../services/channel.service';
+import { Router, NavigationEnd } from '@angular/router';
 
 
 @Component({
@@ -9,7 +10,7 @@ import { ChannelService } from '../services/channel.service';
   templateUrl: './group.component.html',
   styleUrls: ['./group.component.css']
 })
-export class GroupComponent implements OnInit {
+export class GroupComponent implements OnInit, OnDestroy {
 
   localUsername = "";
   users = [];
@@ -21,12 +22,13 @@ export class GroupComponent implements OnInit {
     'password': "",
     'email': "",
     'role': "",
-    'avatar': ""
+    'avatar': {}
   };
   authenticated: string;
   fileToUpload: any;
   imgURL: any;
   groupCount: number = 0;
+  mySubscription: any;
   
   // Check if current user function
   readLocalStorageValue(key) {
@@ -36,8 +38,20 @@ export class GroupComponent implements OnInit {
   constructor(
     private userData: UserService, 
     private groupData: GroupsService, 
-    private channelData: ChannelService
-    ) { }
+    private channelData: ChannelService,
+    private router: Router
+    ) { 
+      this.router.routeReuseStrategy.shouldReuseRoute = function () {
+        return false;
+      };
+      
+      this.mySubscription = this.router.events.subscribe((event) => {
+        if (event instanceof NavigationEnd) {
+          // Trick the Router into believing it's last link wasn't previously loaded
+          this.router.navigated = false;
+        }
+      });
+    }
 
   ngOnInit() {
     this.authenticated = this.readLocalStorageValue('username');
@@ -76,6 +90,13 @@ export class GroupComponent implements OnInit {
 
     // Get all current users posts
     
+    
+  }
+
+  ngOnDestroy() {
+    if (this.mySubscription) {
+      this.mySubscription.unsubscribe();
+    }
   }
 
   public onFileAdded(event) {
@@ -91,14 +112,14 @@ export class GroupComponent implements OnInit {
   
   public onFileSubmit() {
     let formData = new FormData();
-    formData.append('file', this.fileToUpload, this.fileToUpload.name);
+    formData.append('uploads[]', this.fileToUpload, this.fileToUpload.name);
     // console.log("File to upload:", this.fileToUpload)
     this.userData.uploadNewAvatar(formData).subscribe(data => {
       console.log(data);
-      this.currentUser.avatar = '../../assets/' + data.name;
-    });
-    this.userData.updateUserAvatar(this.currentUser, '../../assets/' + this.fileToUpload.name).subscribe(data => {
-      console.log(data);
+      this.currentUser.avatar = '/assets/' + data.img;
+      this.userData.updateUserAvatar(this.currentUser, '/assets/' + data.img).subscribe(data => {
+        console.log(data);
+      });
     });
   }
 }

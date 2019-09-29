@@ -42,7 +42,7 @@
                 <div class="row text-white">
                     <ng-container *ngFor="let group of userGroups">
                         <div *ngIf="group.userID === currentUser._id" class="mx-auto col-12 col-xl-4 col-md-6 border p-3 mb-3 group_container">
-                            <h5 class="text-center bg-info">{{group.groupName}}</h5>
+                            <h5 class="text-center bg-info py-1">{{group.groupName}}</h5>
                             <ng-container *ngFor="let channel of userChannels">
                                 <div *ngIf="channel.userID === currentUser._id && channel.groupID === group.groupID && channel.userID === group.userID">
                                     CHANNEL: <a [routerLink]="['/channels',channel.channelID]">{{channel.channelName}}</a>
@@ -53,15 +53,17 @@
                 </div>
             </div>
         </mat-tab>
+
         <mat-tab label="Personal Details">
             
         </mat-tab>
+
         <mat-tab label="Change Profile Picture">
             <div class="avatar_container">
-                <h3 class="text-white text-center">Change Your Profile Picture</h3>
+                <h3 class="text-white text-center mt-3">Change Your Profile Picture</h3>
                 <p class="text-white text-center">Your Selected Image Preview</p>
                 <div class="border text-center mx-auto text-white d-block" style="width: 300px; height: 300px">
-                    <img [src]="imgURL" width="300px" *ngIf="imgURL">
+                    <img [src]="imgURL" width="300px" height="300px" *ngIf="imgURL">
                 </div>
                 <form class="px-2 pb-2 mx-auto" style="max-width: 550px">
                     <input type="file" name="upload" class="mx-auto mt-2 form-control-file text-white" (change)="onFileAdded($event)">

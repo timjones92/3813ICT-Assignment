@@ -1,21 +1,30 @@
-module.exports = function(db, app, ObjectID, formidable) {
+module.exports = function(db, app, ObjectID, formidable, multipart, fs) {
+    const  multipartMiddleware  =  multipart({ uploadDir: '/Users/HPCustomer/3813ICT/Assignment1/ChatApp/src/assets' });
+    
     //
-    app.post('/api/uploadAvatar', function(req, res) {
-        var form = new formidable.IncomingForm();
-        form.parse(req);
-        
-        form.on('fileBegin', function(name, file) {
-            file.path = '/Users/HPCustomer/3813ICT/Assignment1/ChatApp/src/assets/' + file.name;
-        });
+    // app.post('/api/uploadAvatar', function(req, res) {
+    //     var form = new formidable.IncomingForm();
+    //     form.parse(req);
+    //     form.on('fileBegin', function(name, file) {
+    //         file.path = '/Users/HPCustomer/3813ICT/Assignment1/ChatApp/src/assets/' + file.name;
+    //     });
 
-        form.on('file', function(name, file) {
-            console.log('Uploaded ' + file.name);
-            res.send(file);
-        });
+    //     form.on('file', function(name, file) {
+    //         console.log('Uploaded ' + file.name);
+    //         res.send(file);
+    //     });
 
+    // });
+
+    app.post('/api/uploadAvatar', multipartMiddleware, function(req, res) {
+        console.log("This is the request", req.files);
         
+        res.json({
+            'message': 'File uploaded successfully.',
+            'img': req.files.uploads[0].originalFilename
+        });
     });
-
+    
     app.post('/api/updateUserAvatar', function(req,res) {
         if (!req.body) {
             return res.sendStatus(400);

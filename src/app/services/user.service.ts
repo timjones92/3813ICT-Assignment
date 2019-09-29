@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { User } from '../users';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -37,5 +38,9 @@ export class UserService {
 
   updateUserAvatar(user, img) {
     return this.http.post<any>(this.url + '/api/updateUserAvatar', {'user': user, 'img': img});
+  }
+
+  getImage(url: string): Observable<Blob> {
+    return this.http.get(url, {responseType: 'blob'});
   }
 }
