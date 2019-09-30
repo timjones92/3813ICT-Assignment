@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, OnDestroy } from '@angular/core';
 import { Group, Channel } from '../groups';
 import { User } from '../users';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -6,6 +6,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { GroupsService } from '../services/groups.service';
 import { UserService } from '../services/user.service';
 import { ChannelService } from '../services/channel.service';
+import { Router, NavigationEnd } from '@angular/router';
 
 
 @Component({
@@ -23,7 +24,7 @@ export class AdminComponent implements OnInit {
   userChannels = [];
   currentUser = {username: "", email: "", role: "", avatar: "", groupAssis: false};
   groupAssisList = [];
-
+  mySubscription: any;
   authenticated: string;
   admin: string;
   
@@ -36,8 +37,20 @@ export class AdminComponent implements OnInit {
     public dialog: MatDialog,
     private groupsData: GroupsService,
     private userData: UserService,
-    private channelData: ChannelService
-    ) { }
+    private channelData: ChannelService,
+    private router: Router
+    ) {
+      this.router.routeReuseStrategy.shouldReuseRoute = function () {
+        return false;
+      };
+      
+      this.mySubscription = this.router.events.subscribe((event) => {
+        if (event instanceof NavigationEnd) {
+          // Trick the Router into believing it's last link wasn't previously loaded
+          this.router.navigated = false;
+        }
+      });
+     }
 
   ngOnInit() {
     this.authenticated = this.readLocalStorageValue('username');
@@ -102,6 +115,12 @@ export class AdminComponent implements OnInit {
       }
     });
     
+  }
+
+  ngOnDestroy() {
+    if (this.mySubscription) {
+      this.mySubscription.unsubscribe();
+    }
   }
 
   /**
@@ -356,12 +375,14 @@ export class AdminComponent implements OnInit {
   updateUsers() {
     this.userData.updateUsers(this.users).subscribe(
       data => {
-        alert("Updated all users");
         this.users = data.udata;
         this.userGroups = data.ugdata;
         this.userChannels = data.ucdata;
       }
     );
+    setTimeout(() => {
+      this.router.navigateByUrl("/");
+    }, 300)
     
   }
 

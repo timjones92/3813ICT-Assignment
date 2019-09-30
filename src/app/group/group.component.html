@@ -20,15 +20,15 @@
                 <div class="row overview">
                     <div class="col-md-4 text-center">
                         <h3>POSTS</h3>
-                        <h4>2,784</h4>
+                        <h4>{{postsCount}}</h4>
                     </div>
                     <div class="col-md-4 text-center">
                         <h3>GROUPS</h3>
-                        <h4>456</h4>
+                        <h4>{{groupCount}}</h4>
                     </div>
                     <div class="col-md-4 text-center">
                         <h3>CHANNELS</h3>
-                        <h4>4,901</h4>
+                        <h4>{{channelCount}}</h4>
                     </div>
                 </div>
             </div>
@@ -44,8 +44,8 @@
                         <div *ngIf="group.userID === currentUser._id" class="mx-auto col-12 col-xl-4 col-md-6 border p-3 mb-3 group_container">
                             <h5 class="text-center bg-info py-1">{{group.groupName}}</h5>
                             <ng-container *ngFor="let channel of userChannels">
-                                <div *ngIf="channel.userID === currentUser._id && channel.groupID === group.groupID && channel.userID === group.userID">
-                                    CHANNEL: <a [routerLink]="['/channels',channel.channelID]">{{channel.channelName}}</a>
+                                <div *ngIf="channel.userID === currentUser._id && channel.groupID === group.groupID && channel.userID === group.userID" class="channel-container">
+                                    CHANNEL: <a [routerLink]="['/channels',channel.channelID]" class="channel-name">{{channel.channelName}}</a>
                                 </div>
                             </ng-container>
                         </div>     
@@ -55,7 +55,38 @@
         </mat-tab>
 
         <mat-tab label="Personal Details">
-            
+            <div>
+                <h3 class="text-white text-center mt-3">Update Your User Details</h3>
+                <form class="form-group col-lg-7 mx-auto user-form">
+                    <label class="text-white">Username</label>
+                    <div class="input-group mb-2">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text bg-info"><i class="fas fa-user"></i></span>
+                        </div>
+                        <input type="text" class="form-control" (change)="checkValidUser($event)" [(ngModel)]="currentUser.username" name="currentUser.username">
+                    </div>
+                    <div class="username_error">{{errorMessage}}</div>
+                    <label class="text-white mt-3">Password</label>
+                    <div class="input-group mb-2">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text bg-info"><i class="fas fa-key"></i></span>
+                        </div>
+                        <input type="password" class="form-control" [(ngModel)]="currentUser.password" name="currentUser.password">
+                    </div>
+                    <label class="text-white mt-3">Email</label>
+                    <div class="input-group mb-2">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text bg-info"><i class="fas fa-envelope"></i></span>
+                        </div>
+                        <input type="email" class="form-control" [(ngModel)]="currentUser.email" name="currentUser.email">
+                    </div>
+                    <div class="mt-5">
+                        <button type="submit" class="btn btn-info" (click)="updateMyDetails()">Update</button>
+                        <div class="update_error">{{updateErrorMessage}}</div>
+                    </div>
+                    
+                </form>
+            </div>
         </mat-tab>
 
         <mat-tab label="Change Profile Picture">

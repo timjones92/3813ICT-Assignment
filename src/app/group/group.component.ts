@@ -27,8 +27,13 @@ export class GroupComponent implements OnInit, OnDestroy {
   authenticated: string;
   fileToUpload: any;
   imgURL: any;
-  groupCount: number = 0;
+  channelCount: number;
+  groupCount: number;
+  postsCount: number;
   mySubscription: any;
+  errorMessage: string;
+  currentUsername: string;
+  updateErrorMessage: string;
   
   // Check if current user function
   readLocalStorageValue(key) {
@@ -78,19 +83,21 @@ export class GroupComponent implements OnInit, OnDestroy {
         for (let i = 0; i < this.users.length; i++) {
           if (this.users[i].username === this.localUsername) {
             this.currentUser = this.users[i];
-            if (this.userGroups.find(x => x.userID === this.currentUser._id)) {
-              this.groupCount = this.userGroups.find(x => x.userID === this.currentUser._id)
-              console.log("Current User Group count:", this.groupCount)
-            }
+            // Current user username
+            this.currentUsername = this.currentUser.username;
+            // Get all current users posts
+            this.userData.getUserCounts(this.currentUser).subscribe(data => {
+              console.log(data);
+              this.groupCount = data.ugcount;
+              this.channelCount = data.uccount;
+              this.postsCount = data.chcount;
+            });
           }
         }
         console.log("Current User:", this.currentUser);
       }
     });
 
-    // Get all current users posts
-    
-    
   }
 
   ngOnDestroy() {
@@ -124,6 +131,42 @@ export class GroupComponent implements OnInit, OnDestroy {
         });
       }
       
+    });
+  }
+
+  updateMyDetails() {
+    if (this.currentUser.username !== "" && this.currentUser.password !== "" && this.currentUser.email !== "") {
+      this.userData.checkValidUsername(this.currentUser).subscribe(data => {
+        if (data.success == 0) {
+          this.updateErrorMessage = "Choose a different username to update your username";
+        } else {
+          this.userData.updateCurrentUser(this.currentUser).subscribe(user => {
+          });
+          this.currentUser = this.currentUser;
+          localStorage.setItem("username", this.currentUser.username);
+          setTimeout(() => {
+            this.router.navigateByUrl("/");
+          }, 300)
+        }
+        
+      });
+    } else {
+      this.updateErrorMessage = "Cannot have empty fields.";
+    }
+    
+  }
+
+  checkValidUser(event) {
+    this.userData.checkValidUsername(this.currentUser).subscribe(data => {
+      if (data.success == 0) {
+        if (this.currentUser.username !== this.currentUsername) {
+          this.errorMessage = "This username already exists. Please choose a different username.";
+        } else {
+          this.errorMessage = "";
+        }
+      } else {
+        this.errorMessage = "";
+      }
     });
   }
 }

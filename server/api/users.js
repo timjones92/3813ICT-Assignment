@@ -41,10 +41,16 @@ module.exports = function(db, app, ObjectID) {
         const userCollection = db.collection('users');
         const userGroupsCollection = db.collection('usergroups');
         const userChannelsCollection = db.collection('userchannels');
+        const chatCollection = db.collection('chats');
+        const groupAssisCol = db.collection('groupassis');
 
         for (let i = 0; i < users.length; i++) {
             // Create a new mongo Object ID from the passed in _id
             var objectid = new ObjectID(users[i]._id);
+            // Update username where user is a group assistant
+            groupAssisCol.updateMany({userID: users[i]._id}, {$set:{username: users[i].username}});
+            // Update username in where user in chat
+            chatCollection.updateMany({userID: users[i]._id}, {$set:{username: users[i].username}});
             // Update username in user groups
             userGroupsCollection.updateMany({userID: users[i]._id}, {$set:{username: users[i].username}});
             // Update username in user channels
@@ -63,9 +69,40 @@ module.exports = function(db, app, ObjectID) {
                 });
             });
         });
+    });
+
+    // Route to update the current users details
+    app.post('/api/updateCurrentUser', function(req, res) {
+        if (!req.body) {
+            return res.sendStatus(400);
+        }
+        user = req.body;
+        const userCollection = db.collection('users');
+        const userGroupsCollection = db.collection('usergroups');
+        const userChannelsCollection = db.collection('userchannels');
+        const chatCollection = db.collection('chats');
+        const groupAssisCol = db.collection('groupassis');
         
+        // Create a new mongo Object ID from the passed in _id
+        var objectid = new ObjectID(user._id);
+        // Update username where user is a group assistant
+        groupAssisCol.updateMany({userID: user._id}, {$set:{username: user.username}});
+        // Update username in user groups
+        chatCollection.updateMany({userID: user._id}, {$set:{username: user.username}});
+        // Update username in user groups
+        userGroupsCollection.updateMany({userID: user._id}, {$set:{username: user.username}});
+        // Update username in user channels
+        userChannelsCollection.updateMany({userID: user._id}, {$set:{username: user.username}});
+        // For each user, update with their new values
+        userCollection.updateOne({_id:objectid}, {$set:{username:user.username, password:user.password, email:user.email}}, () => {
+            console.log("Updated current user");
+        });
         
-        
+        userCollection.find({_id:objectid}).toArray((err, data) => {
+            console.log(data);
+            // Return a response to the client with new current user details
+            res.send(data);
+        });
     });
 
     // Route to delete a single user
@@ -114,6 +151,45 @@ module.exports = function(db, app, ObjectID) {
             } else {
                 res.send({success: 1})
             }
+        });
+    });
+
+    // Server-side validation if username already exists
+    app.post('/api/checkvalidusername', function(req, res) {
+        if (!req.body) {
+            return res.sendStatus(400);
+        }
+        user = req.body;
+        const collection = db.collection('users');
+        // Check if username already exists
+        collection.find({'username':user.username}).count((err, count) => {
+            // if no existing user
+            if (count == 0) {
+                res.send({success: 1})
+            } else {
+                // Username already exists
+                res.send({success: 0})
+            }
+        });
+    });
+
+    // Get counts where use is included in
+    app.post('/api/userCounts', function(req, res) {
+        if (!req.body) {
+            return res.sendStatus(400);
+        }
+        user = req.body;
+
+        const userGroupsCollection = db.collection('usergroups');
+        const userChannelsCollection = db.collection('userchannels');
+        const chatCollection = db.collection('chats');
+
+        userGroupsCollection.find({userID: user._id}).count((err, ugcount) => {
+            userChannelsCollection.find({userID: user._id}).count((err, uccount) => {
+                chatCollection.find({userID: user._id}).count((err, chcount) => {
+                    res.send({"ugcount": ugcount, "uccount": uccount, "chcount": chcount});
+                });
+            });
         });
     });
 }

@@ -9,7 +9,7 @@
 
 .group_container {
     background-color: rgba(140, 185, 221, 0.349) !important;
-    
+    border: 2px ridge;
 }
 
 .user-menu-container {
@@ -79,4 +79,73 @@
     padding: 0px;
     border-radius: 0;
     border: 0px!important;
+ }
+
+ .user-form {
+    background-color: rgba(121, 121, 121, 0.527) !important;
+    padding: 15px;
+ }
+
+ .username_error {
+    color: red;
+    font-size: 1em;
+    display: flex;
+ }
+
+ .update_error {
+    color: red;
+    font-size: 1.15em;
+    display: inline-flex;
+    margin-left: 15%;
+    align-items: center;
+ }
+
+ .channel-container {
+    text-transform: uppercase;
+    text-align: center;
+    font-size: 12px;
+	letter-spacing: .2em;
+	display: inline-block;
+	border: 4px double rgba(14, 201, 226, 0.685);
+	border-width: 4px 0;
+	padding: 0.5em 0em;
+	position: relative;
+	width: 100%;
+    margin-top: 10px;
+    background-color: rgba(41, 40, 40, 0.74) !important;
+ }
+
+ .channel-name {
+    font: 700 1.75em/1 "Oswald", sans-serif;
+    text-align: center;
+    text-decoration: none;
+  	letter-spacing: 0;
+  	padding: .5em 0 .325em;
+	display: block;
+	margin: 0 auto;
+    text-shadow: 0 0 80px rgba(255,255,255,.5);
+    /* Clip Background Image */
+
+	background: url(http://f.cl.ly/items/010q3E1u3p2Q0j1L1S1o/animated_text_fill.png) repeat-y;
+	-webkit-background-clip: text;
+	background-clip: text;
+
+    /* Animate Background Image */
+
+	-webkit-text-fill-color: transparent;
+	-webkit-animation: aitf 80s linear infinite;
+
+    /* Activate hardware acceleration for smoother animations */
+
+	-webkit-transform: translate3d(0,0,0);
+	-webkit-backface-visibility: hidden;
+
+}
+
+
+/* Animate Background Image */
+
+@-webkit-keyframes aitf {
+	0% { background-position: 0% 50%; }
+	100% { background-position: 100% 50%; }
  }

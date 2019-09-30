@@ -1,10 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { Channel } from '../groups';
 import { ChannelService } from '../services/channel.service';
 import { SocketService } from '../services/socket.service';
 import { Location } from '@angular/common';
 import { UserService } from '../services/user.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Subscription } from 'rxjs';
+import { ThrowStmt } from '@angular/compiler';
+
 
 @Component({
   selector: 'app-channel',
@@ -35,8 +39,11 @@ export class ChannelComponent implements OnInit {
   messagecontent:string = "";
   messages:any[] = [];
   ioConnection:any;
+  newConnection: Subscription;
   fileUpload: any;
   imgURL: any;
+  leaveChannel: any;
+  broadcasts = [];
 
   // Check if current user function
   readLocalStorageValue(key) {
@@ -48,7 +55,8 @@ export class ChannelComponent implements OnInit {
     private socketService: SocketService,
     private _location: Location,
     private channelData: ChannelService,
-    private userData: UserService
+    private userData: UserService,
+    private snackBar: MatSnackBar
     ) { }
 
   ngOnInit() {
@@ -66,7 +74,6 @@ export class ChannelComponent implements OnInit {
             this.socketService.getAllChannelMessages(this.selectedChannel).subscribe(data => {
               if (data !== null) {
                 this.messages = data;
-                console.log(this.messages)
               }
             });
             console.log("Selected Channel is:", this.selectedChannel)
@@ -90,17 +97,33 @@ export class ChannelComponent implements OnInit {
           if (this.users[i].username === this.localUsername) {
             this.currentUser = this.users[i];
             console.log("Current User is:", this.currentUser)
+            this.initToConnection();
           }
         }
       }
     });
 
-    this.initToConnection();
+    
+  }
+
+  ngOnDestroy() {
+    this.openSnackBar(this.currentUser.username + " has left channel.", "Okay");
+    this.socketService.onLeaveChannel(this.newConnection);
+    console.log(this.ioConnection)
   }
 
   // Connect to io socket at server
   private initToConnection() {
-    this.socketService.initSocket();
+    this.socketService.initSocket(this.currentUser);
+    this.newConnection = this.socketService.onBroadcast().subscribe((broadcast) => {
+      console.log("Broadcast from socket", broadcast);
+      this.openSnackBar(broadcast.user.username + " has joined the channel.", "Okay");
+    });
+    setTimeout(() => {
+      this.broadcasts.push(this.newConnection);
+      console.log(this.broadcasts)
+    }, 500)
+    
     this.ioConnection = this.socketService.onMessage().subscribe((message) => {
       // console.log("Message user id", message.user._id);
       // Define new message from socket
@@ -125,6 +148,14 @@ export class ChannelComponent implements OnInit {
         }
           
       }
+    });
+  }
+
+  // Broadcast message as snackbar
+  openSnackBar(message: string, action: string) {
+    this.snackBar.open(message, action, {
+      duration: 5000,
+      verticalPosition: 'top'
     });
   }
 

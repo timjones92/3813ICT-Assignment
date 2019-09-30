@@ -5,9 +5,11 @@
         </h2>
         <button class="btn btn-outline-light btn-sm" (click)="goBack()">Go back</button>
         <button *ngIf="currentUser.role !== 'User'" (click)="deleteChatHistory(selectedChannel)" class="btn btn-danger btn-sm ml-3">Clear Chat History</button>
+        <hr class="border-white">
+        <h4 class="text-white">Chat Messages</h4>
     </div>
-    <h4 class="text-white">Chat Messages</h4>
-    <div class="my-3 msg_body" #scrollMe [scrollTop]="scrollMe.scrollHeight">
+    
+    <div class="mb-3 msg_body" #scrollMe [scrollTop]="scrollMe.scrollHeight">
         <ng-container *ngFor="let message of messages">
             <div *ngIf="message.userID === currentUser._id; else observer">
                 <div class="d-inline">
