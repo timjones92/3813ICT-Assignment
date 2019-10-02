@@ -13,7 +13,7 @@ module.exports = function(db, app, ObjectID) {
                 //if no duplicate
                 collection.insertOne({groupID: group.groupID, groupName: group.groupName, userID: user._id, username: user.username}, (err, dbres) => {
                     if (err) throw err;
-                    //send back to client number of items inserted and no error message
+                    //send back to client all user groups
                     collection.find({}).toArray((err, data) => {
                         res.send(data);
                     });
@@ -38,10 +38,10 @@ module.exports = function(db, app, ObjectID) {
         const groupAssisCol = db.collection('groupassis');
 
         // Delete a single usergroup based on unique ID
-        groupAssisCol.deleteMany({groupID:group.groupID, userID: user.userID});
         userGroupCol.deleteOne({groupID:group.groupID, userID: user.userID}, (err, docs) => {
 
         });
+        groupAssisCol.deleteMany({groupID:group.groupID, userID: user.userID});
         userChannelCol.deleteMany({groupID:group.groupID, userID: user.userID});
         // Get a new listing of all items in the database and return to client
         userChannelCol.find({}).toArray((err, ucdata) => {
