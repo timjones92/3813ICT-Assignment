@@ -1,5 +1,5 @@
 <div *ngIf="authenticated !== null || currentUser.groupAssis === true || currentUser.role === 'SuperAdmin' || currentUser.role === 'GroupAdmin'" class="container mt-5">
-    <div class="mb-4 admin-bg">
+    <div *ngIf="currentUser.role !== 'User' || currentUser.groupAssis === true" class="mb-4 admin-bg">
         <mat-tab-group mat-stretch-tabs>
             <mat-tab *ngIf="currentUser.role === 'SuperAdmin' || currentUser.role === 'GroupAdmin'" label="Users">
                 <!-- Users Adminstration -->
@@ -28,28 +28,12 @@
                                     <td class="align-middle"><input type="text" class="form-control" placeholder="Username" [(ngModel)]="user.username" name="{{user.username}}"></td>
                                     <td class="align-middle"><input type="password" class="form-control" placeholder="Password" [(ngModel)]="user.password" name="{{user.password}}"></td>
                                     <td class="align-middle"><input type="text" class="form-control" placeholder="Email" [(ngModel)]="user.email" name="{{user.email}}"></td>
-                                    <td class="align-middle" *ngIf="user.role !== 'SuperAdmin' && user.role !== 'GroupAdmin' && currentUser.role !== 'SuperAdmin'">
-                                        <input type="text" class="form-control" placeholder="Role" [(ngModel)]="user.role" name="{{user.role}}">
-                                    </td>
-                                    <td class="align-middle" *ngIf="user.role === 'SuperAdmin' && currentUser.role === 'GroupAdmin'">
-                                        <input type="text" class="form-control" placeholder="Role" [(ngModel)]="user.role" name="{{user.role}}" readonly>
-                                    </td>
-                                    <td class="align-middle" *ngIf="user.role === 'GroupAdmin' && currentUser.role === 'GroupAdmin'">
+                                    <td class="align-middle" *ngIf="currentUser.role === 'GroupAdmin'">
                                         <input type="text" class="form-control" placeholder="Role" [(ngModel)]="user.role" name="{{user.role}}" readonly>
                                     </td>
                                     <td class="align-middle" *ngIf="currentUser.role === 'SuperAdmin'">
                                         <input type="text" class="form-control" placeholder="Role" [(ngModel)]="user.role" name="{{user.role}}">
                                     </td>
-                                    <!-- <td>
-                                        <select class="form-control">
-                                            <option *ngFor="let group of user.groups" placeholder="Groups">{{group.groupName}}</option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <select class="form-control">
-                                            <option *ngFor="let channel of user.channels" placeholder="Channels">{{channel.channelName}} ({{channel.groupName}})</option>
-                                        </select>
-                                    </td> -->
                                     <td class="align-middle" *ngIf="currentUser.role === 'SuperAdmin'"><button type="button" class="btn btn-danger" (click)="deleteUser(user)"><i class="fas fa-times"></i></button></td>
                                     </ng-container>
                                 </tr>

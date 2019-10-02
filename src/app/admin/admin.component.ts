@@ -65,6 +65,7 @@ export class AdminComponent implements OnInit {
     this.userData.getUsersList().subscribe(data => {
       if (data !== null) {
         this.users = data;
+        console.log("All users:", this.users);
         // Get current user from all users and add to variable `currentUser`
         for (let i = 0; i < this.users.length; i++) {
           if (this.users[i].username === this.authenticated) {
@@ -165,7 +166,7 @@ export class AdminComponent implements OnInit {
 
   updateGroups() {
     this.groupsData.updateGroups(this.groups).subscribe(data => {
-      this.groups = data.gdata;
+      // this.groups = data.gdata;
       this.channels = data.cdata;
       this.userGroups = data.ugdata;
       this.userChannels = data.ucdata;
@@ -360,7 +361,7 @@ export class AdminComponent implements OnInit {
     userDialogRef.afterClosed().subscribe(result => {
       newUser = result;
       if (result !== undefined) {
-        newUser.avatar = '../assets/default-avatar.jpg';
+        newUser.avatar = '/uploads/default-avatar.jpg';
         // Send user to server to add to db
         this.userData.addNewUser(newUser).subscribe(    
           data => {

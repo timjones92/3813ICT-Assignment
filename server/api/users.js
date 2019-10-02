@@ -119,11 +119,11 @@ module.exports = function(db, app, ObjectID) {
         const groupAssisCol = db.collection('groupassis');
         
         // Delete selected user from all their group assis roles
-        groupAssisCol.deleteMany({userID: objectid});
+        groupAssisCol.deleteMany({userID: user._id});
         // Delete selected user from all their groups
-        userGroupsCollection.deleteMany({user: user.username});
+        userGroupsCollection.deleteMany({userID: user._id});
         // Delete selected user from all their channels
-        userChannelsCollection.deleteMany({user: user.username});
+        userChannelsCollection.deleteMany({userID: user._id});
         // Delete a single product based on unique ID
         userCollection.deleteOne({_id:objectid}, (err, docs) => {
             if (err) throw err;
