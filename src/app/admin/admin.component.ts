@@ -164,12 +164,13 @@ export class AdminComponent implements OnInit {
   }
 
   updateGroups() {
-    this.groupsData.updateGroups(this.groups).subscribe(
-      data => {
-        console.log(data);
-        alert("Updated all Groups.")
-      }
-    );
+    this.groupsData.updateGroups(this.groups).subscribe(data => {
+      this.groups = data.gdata;
+      this.channels = data.cdata;
+      this.userGroups = data.ugdata;
+      this.userChannels = data.ucdata;
+      this.groupAssisList = data.gadata;
+    });
     
   }
 
@@ -250,6 +251,7 @@ export class AdminComponent implements OnInit {
           data => {
             this.userGroups = data.ugdata;
             this.userChannels = data.ucdata;
+            this.groupAssisList = data.gadata;
           }
         );
       }
@@ -392,6 +394,7 @@ export class AdminComponent implements OnInit {
         this.users = data.udata;
         this.userGroups = data.ugdata;
         this.userChannels = data.ucdata;
+        this.groupAssisList = data.gadata;
       });
     }
   }
@@ -439,21 +442,19 @@ export class AdminComponent implements OnInit {
   }
 
   updateChannels() {
-    this.channelData.updateChannels(this.channels).subscribe(
-      data => {
-        alert("Updated all channels.");
-      }
-    );
+    this.channelData.updateChannels(this.channels).subscribe(data => {
+        this.channels = data.cdata;
+        this.userChannels = data.ucdata;
+    });
   }
 
   deleteChannel(channel) {
     if (confirm("Are you sure you want to delete the " + channel.channelName + " channel?"
     + "\nWARNING: All channel users will be deleted from channel.")) {
-      this.channelData.deleteChannel(channel).subscribe(
-        data => {
-          this.channels = data;
-        }
-      );
+      this.channelData.deleteChannel(channel).subscribe(data => {
+        this.channels = data.cdata;
+        this.userChannels = data.ucdata;
+      });
     }
   }
 

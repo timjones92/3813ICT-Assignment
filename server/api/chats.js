@@ -9,7 +9,7 @@ module.exports = function(db, app, ObjectID) {
         channel = req.body.channel;
         user = req.body.user;
         const collection = db.collection('chats');
-        //if no duplicate
+        //insert into chats collection
         collection.insertOne({
             'message': message, 
             'timestamp': timestamp, 

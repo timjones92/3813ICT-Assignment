@@ -74,6 +74,7 @@ export class ChannelComponent implements OnInit {
             this.socketService.getAllChannelMessages(this.selectedChannel).subscribe(data => {
               if (data !== null) {
                 this.messages = data;
+                console.log(this.messages)
               }
             });
             console.log("Selected Channel is:", this.selectedChannel)
@@ -109,7 +110,6 @@ export class ChannelComponent implements OnInit {
   ngOnDestroy() {
     this.openSnackBar(this.currentUser.username + " has left channel.", "Okay");
     this.socketService.onLeaveChannel(this.newConnection);
-    console.log(this.ioConnection)
   }
 
   // Connect to io socket at server

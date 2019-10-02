@@ -35,16 +35,21 @@ module.exports = function(db, app, ObjectID) {
         
         const userGroupCol = db.collection('usergroups');
         const userChannelCol = db.collection('userchannels');
-        // Delete a single product based on unique ID
+        const groupAssisCol = db.collection('groupassis');
+
+        // Delete a single usergroup based on unique ID
+        groupAssisCol.deleteMany({groupID:group.groupID, userID: user.userID});
         userGroupCol.deleteOne({groupID:group.groupID, userID: user.userID}, (err, docs) => {
 
         });
         userChannelCol.deleteMany({groupID:group.groupID, userID: user.userID});
         // Get a new listing of all items in the database and return to client
         userChannelCol.find({}).toArray((err, ucdata) => {
-            userGroupCol.find({}).toArray((err, ugdata) => {
-                // Return a response to the client to let them know the delete was successful
-                res.send({'ugdata':ugdata, 'ucdata':ucdata});
+            groupAssisCol.find({}).toArray((err, gadata) => {
+                userGroupCol.find({}).toArray((err, ugdata) => {
+                    // Return a response to the client to let them know the delete was successful
+                    res.send({'ugdata':ugdata, 'ucdata':ucdata, 'gadata': gadata});
+                });
             });
         });
     });

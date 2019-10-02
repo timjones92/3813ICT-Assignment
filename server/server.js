@@ -63,4 +63,6 @@ MongoClient.connect(url, {poolSize:10, useNewUrlParser: true, useUnifiedTopology
 sockets.connect(io, PORT);
 
 //Start server listening for requests.
-server.listen(http,PORT);
+// server.listen(http,PORT);
+
+module.exports = app.listen(3000); // for testing

@@ -40,14 +40,34 @@ module.exports = function(db, app, ObjectID) {
         }
         groups = req.body;
         const collection = db.collection('groups');
+        const channelsCollection = db.collection('channels');
+        const userGroupsCollection = db.collection('usergroups');
+        const userChannelsCollection = db.collection('userchannels');
+        const groupAssisCol = db.collection('groupassis');
+
         for (let i = 0; i < groups.length; i++) {
             var objectid = new ObjectID(groups[i]._id);
-            collection.updateMany({_id:objectid}, {$set:{groupID:groups[i].groupID, groupName:groups[i].groupName}}, () => {
+            groupAssisCol.updateMany({groupID:groups[i].groupID}, {$set:{groupName:groups[i].groupName}});
+            channelsCollection.updateMany({groupID:groups[i].groupID}, {$set:{groupName:groups[i].groupName}});
+            userGroupsCollection.updateMany({groupID:groups[i].groupID}, {$set:{groupName:groups[i].groupName}});
+            userChannelsCollection.updateMany({groupID:groups[i].groupID}, {$set:{groupName:groups[i].groupName}});
+            collection.updateOne({_id:objectid}, {$set:{groupID:groups[i].groupID, groupName:groups[i].groupName}}, () => {
                         
             });
         }
         // Return a response to the client to let them know the update was successful
-        res.send({'ok': groups});
+        collection.find({}).toArray((err, gdata) => {
+            channelsCollection.find({}).toArray((err, cdata) => {
+                userGroupsCollection.find({}).toArray((err, ugdata) => {
+                    userChannelsCollection.find({}).toArray((err, ucdata) => {
+                        groupAssisCol.find({}).toArray((err, gadata) => {
+                            // Return a response to the client to let them know the delete was successful
+                            res.send({'gdata': gdata, 'cdata': cdata, 'ugdata': ugdata, 'ucdata': ucdata, 'gadata': gadata});
+                        });
+                    });
+                });
+            });
+        });
     });
 
     // Route to delete a single group
@@ -62,13 +82,16 @@ module.exports = function(db, app, ObjectID) {
         const channelsCollection = db.collection('channels');
         const userGroupsCollection = db.collection('usergroups');
         const userChannelsCollection = db.collection('userchannels');
+        const groupAssisCol = db.collection('groupassis');
 
+        // Delete all the selected group's channels
+        groupAssisCol.deleteMany({groupID: group.groupID});
         // Delete all the selected group's channels
         channelsCollection.deleteMany({groupID: group.groupID});
         // Delete all the selected group's users
-        userGroupsCollection.deleteMany({group: group.groupID});
+        userGroupsCollection.deleteMany({groupID: group.groupID});
         // Delete all the selected group's channel users
-        userChannelsCollection.deleteMany({group: group.groupID});
+        userChannelsCollection.deleteMany({groupID: group.groupID});
         // Delete a single product based on unique ID
         groupCollection.deleteOne({_id:objectid}, (err, docs) => {
             if (err) {
@@ -77,7 +100,6 @@ module.exports = function(db, app, ObjectID) {
         });
 
         // Get a new listing of all items in the database and return to client
-        
         channelsCollection.find({}).toArray((err, cdata) => {
             userGroupsCollection.find({}).toArray((err, ugdata) => {
                 userChannelsCollection.find({}).toArray((err, ucdata) => {
@@ -90,26 +112,6 @@ module.exports = function(db, app, ObjectID) {
         });
     });
 
-    // Server-side validation if groupID exists
-    app.post('/api/checkvalidgroupid', function(req, res) {
-        if (!req.body) {
-            return res.sendStatus(400);
-        }
-        group = req.body;
-        const collection = db.collection('groups');
-        // Check for duplicate id's
-        collection.find({'groupID':group.id}).count((err, count) => {
-            if (count == 0) {
-                res.send({success:1, topnum:0});
-            } else {
-                // On send back highest used number
-                collection.find({}, {sort: {id: -1}, limit: 1}).toArray(function(err, items) {
-                    res.send({success:0, topnum:items[0].id});
-                });
-            }
-        });
-    });
-
     //Route to manage adding a user to a group
     app.post('/api/addNewGroupAssis', function(req, res) {
         if (!req.body) {
@@ -118,8 +120,8 @@ module.exports = function(db, app, ObjectID) {
         group = req.body.group;
         user = req.body.user;
         const collection = db.collection('groupassis');
-        // Check for duplicate id's
         
+        // Insert new user and the selected group to groupassis collection
         collection.insertOne(
             {
                 groupID: group.groupID, 
@@ -148,9 +150,9 @@ module.exports = function(db, app, ObjectID) {
         groupAssisCol.deleteOne({_id: objectid}, (err, docs) => {
             if (err) throw err;
             // Send return message of Group Assis with newly deleted Group Assis
-        groupAssisCol.find({}).toArray((err, data) => {
-            res.send(data);
-        });
+            groupAssisCol.find({}).toArray((err, data) => {
+                res.send(data);
+            });
         });
         
     });

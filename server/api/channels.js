@@ -38,14 +38,26 @@ module.exports = function(db, app, ObjectID) {
         }
         channels = req.body;
         const collection = db.collection('channels');
+        const userChannelCollection = db.collection('userchannels');
+        const chatCollection = db.collection('chats');
+
         for (let i = 0; i < channels.length; i++) {
             var objectid = new ObjectID(channels[i]._id);
-            collection.updateMany({_id:objectid}, {$set:{groupID:channels[i].groupID, groupName:channels[i].groupName, channelID:channels[i].channelID, channelName:channels[i].channelName}}, () => {
+            chatCollection.updateMany({channelID: channels[i].channelID}, {$set:{channelName: channels[i].channelName}});
+            userChannelCollection.updateMany({channelID: channels[i].channelID}, {$set:{channelName: channels[i].channelName}});
+            collection.updateOne({_id:objectid}, {$set:{groupID:channels[i].groupID, groupName:channels[i].groupName, channelID:channels[i].channelID, channelName:channels[i].channelName}}, () => {
                         
             });
         }
         // Return a response to the client to let them know the update was successful
-        res.send({'ok': channels});
+        chatCollection.find({}).toArray((err, chdata) => {
+            userChannelCollection.find({}).toArray((err, ucdata) => {
+                collection.find({}).toArray((err, cdata) => {
+                    // Return a response to the client to let them know the delete was successful
+                    res.send({'cdata': cdata, 'chdata': chdata, 'ucdata': ucdata});
+                });
+            });
+        });
     });
 
     // Route to delete a single channel
@@ -58,14 +70,20 @@ module.exports = function(db, app, ObjectID) {
         var objectid = new ObjectID(channel._id);
         const channelCollection = db.collection('channels');
         const userChannelCollection = db.collection('userchannels');
+        const chatCollection = db.collection('chats');
+
         // Delete a single product based on unique ID
-        channelCollection.deleteOne({_id:objectid}, (err, docs) => {
-            userChannelCollection.deleteMany({channel: channel.channelID});
-            // Get a new listing of all items in the database and return to client
-            channelCollection.find({}).toArray((err, data) => {
-                // Return a response to the client to let them know the delete was successful
-                res.send(data);
-            });
+        chatCollection.deleteMany({channelID: channel.channelID});
+        userChannelCollection.deleteMany({channelID: channel.channelID});
+        channelCollection.deleteOne({_id:objectid});
+        // Get a new listing of all items in the database and return to client
+        chatCollection.find({}).toArray((err, chdata) => {
+            userChannelCollection.find({}).toArray((err, ucdata) => {
+                channelCollection.find({}).toArray((err, cdata) => {
+                    // Return a response to the client to let them know the delete was successful
+                    res.send({'cdata': cdata, 'chdata': chdata, 'ucdata': ucdata});
+                });
+            });    
         });
     });
 

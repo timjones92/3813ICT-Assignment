@@ -3,6 +3,7 @@
     max-width: 600px;
     margin-top: 10em;
     min-height: 350px;
+    box-shadow: 0 4px 8px 0 rgba(180, 180, 180, 0.404), 0 6px 20px 0 rgba(180, 180, 180, 0.308);
 }
 
 .input-group-prepend span{

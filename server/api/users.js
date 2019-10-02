@@ -116,7 +116,10 @@ module.exports = function(db, app, ObjectID) {
         const userCollection = db.collection('users');
         const userGroupsCollection = db.collection('usergroups');
         const userChannelsCollection = db.collection('userchannels');
+        const groupAssisCol = db.collection('groupassis');
         
+        // Delete selected user from all their group assis roles
+        groupAssisCol.deleteMany({userID: objectid});
         // Delete selected user from all their groups
         userGroupsCollection.deleteMany({user: user.username});
         // Delete selected user from all their channels
@@ -127,11 +130,13 @@ module.exports = function(db, app, ObjectID) {
         });
 
         // Get a new listing of all items in the database and return to client
-        userChannelsCollection.find({}).toArray((err, ucdata) => {
-            userGroupsCollection.find({}).toArray((err, ugdata) => {
-                userCollection.find({}).toArray((err, udata) => {
-                    // Return a response to the client to let them know the delete was successful
-                    res.send({'udata':udata, 'ugdata':ugdata, 'ucdata':ucdata});
+        groupAssisCol.find({}).toArray((err, gadata) => {
+            userChannelsCollection.find({}).toArray((err, ucdata) => {
+                userGroupsCollection.find({}).toArray((err, ugdata) => {
+                    userCollection.find({}).toArray((err, udata) => {
+                        // Return a response to the client to let them know the delete was successful
+                        res.send({'udata':udata, 'ugdata':ugdata, 'ucdata':ucdata, 'gadata': gadata});
+                    });
                 });
             });
         });

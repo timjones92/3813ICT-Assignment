@@ -31,10 +31,6 @@ export class GroupsService {
     return this.http.post<any>(this.url + "/api/deleteGroup", group);
   }
 
-  checkValidId(groupID) {
-    return this.http.post<any>(this.url + "/api/checkvalidgroupid", {'groupID': groupID});
-  }
-
   getGroupUsersList() {
     return this.http.get<any>(this.url + "/api/allGroupUsersList")
   }
